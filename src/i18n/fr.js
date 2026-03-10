@@ -58,32 +58,32 @@ export const fr = {
         viewProject: 'Voir le Projet',
         items: [
             {
-                title: 'Plateforme E-Commerce',
+                title: 'E-Commerce',
                 subtitle: 'Marketplace Full-Stack',
                 description: 'Une solution e-commerce complète avec gestion d\'inventaire en temps réel, paiements Stripe et tableau de bord administrateur. Construit avec Next.js et Firebase.',
             },
             {
-                title: 'Dashboard SaaS',
+                title: 'SaaS',
                 subtitle: 'Analytique & Gestion',
                 description: 'Un tableau de bord SaaS complet avec analytique en temps réel, gestion d\'équipe et facturation par abonnement. Mode sombre et graphiques responsive.',
             },
             {
-                title: 'Application Sociale',
+                title: 'Social',
                 subtitle: 'Plateforme Communautaire',
                 description: 'Une plateforme de médias sociaux en temps réel avec stories, messagerie, notifications et modération de contenu. Support d\'images et vidéos.',
             },
             {
-                title: 'Générateur de Contenu IA',
+                title: 'IA Générative',
                 subtitle: 'Outil d\'Intelligence Artificielle',
                 description: 'Un outil de génération de contenu alimenté par l\'IA qui crée des articles de blog, du contenu pour les réseaux sociaux et du copywriting marketing.',
             },
             {
-                title: 'Plateforme Immobilière',
+                title: 'Immobilier',
                 subtitle: 'Marketplace Immobilier',
                 description: 'Une plateforme d\'annonces immobilières avec recherche avancée, intégration de cartes, visites virtuelles et système de gestion d\'agents.',
             },
             {
-                title: 'Suivi Crypto Portfolio',
+                title: 'Crypto',
                 subtitle: 'Dashboard Finance',
                 description: 'Un suivi de portefeuille de cryptomonnaies en temps réel avec prix en direct, analytique de portefeuille et intégration de signaux de trading.',
             },

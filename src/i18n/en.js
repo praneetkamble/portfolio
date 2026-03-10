@@ -63,32 +63,32 @@ export const en = {
         viewProject: 'View Project',
         items: [
             {
-                title: 'E-Commerce Platform',
+                title: 'E-Commerce',
                 subtitle: 'Full-Stack Marketplace',
                 description: 'A complete e-commerce solution with real-time inventory management, Stripe payments, and an admin dashboard. Built with Next.js and Firebase.',
             },
             {
-                title: 'SaaS Dashboard',
+                title: 'SaaS',
                 subtitle: 'Analytics & Management',
                 description: 'A comprehensive SaaS dashboard with real-time analytics, team management, and subscription billing. Features dark mode and responsive charts.',
             },
             {
-                title: 'Social Media App',
+                title: 'Social',
                 subtitle: 'Community Platform',
                 description: 'A real-time social media platform with stories, messaging, notifications, and content moderation. Supports image and video uploads.',
             },
             {
-                title: 'AI Content Generator',
+                title: 'AI Creator',
                 subtitle: 'Machine Learning Tool',
                 description: 'An AI-powered content generation tool that creates blog posts, social media content, and marketing copy using OpenAI API integration.',
             },
             {
-                title: 'Real Estate Platform',
+                title: 'Real Estate',
                 subtitle: 'Property Marketplace',
                 description: 'A property listing platform with advanced search, map integration, virtual tours, and an agent management system.',
             },
             {
-                title: 'Crypto Portfolio Tracker',
+                title: 'Crypto',
                 subtitle: 'Finance Dashboard',
                 description: 'A real-time cryptocurrency portfolio tracker with live price updates, portfolio analytics, and trading signals integration.',
             },

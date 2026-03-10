@@ -363,10 +363,15 @@ export default function PreferencesPopup() {
   const [selectedDark, setSelectedDark] = useState(isDark);
 
   useEffect(() => {
-    const visited = localStorage.getItem('portfolio-visited');
-    if (!visited) {
-      setShow(true);
-    }
+    const onPreloaderDone = () => {
+      const visited = localStorage.getItem('portfolio-visited');
+      if (!visited) {
+        setShow(true);
+      }
+    };
+
+    window.addEventListener('preloader-finished', onPreloaderDone);
+    return () => window.removeEventListener('preloader-finished', onPreloaderDone);
   }, []);
 
   useEffect(() => {

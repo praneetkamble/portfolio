@@ -142,6 +142,7 @@ export default function Preloader() {
     setFadingOut(true);
     setTimeout(() => {
       setGone(true);
+      window.dispatchEvent(new Event('preloader-finished'));
     }, 600); // Wait for fade out animation
   };
 

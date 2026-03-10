@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 /* ══════════════════════════════════════════
    FRAME SEQUENCE CONFIG
    ══════════════════════════════════════════ */
-const IDLE_FRAME_COUNT = 72;
+const IDLE_FRAME_COUNT = 36;
 const SCROLL_FRAME_COUNT = 96;
 const ACTION_FRAME_COUNT = 72;
 const IDLE_FPS = 10;
@@ -103,7 +103,7 @@ const HeroSection = styled.section`
   min-height: 100vh;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow: visible; /* Override standard section overflow to allow blobs to float into next section */
   padding: 6rem 0 2rem;
 `;
 
@@ -446,7 +446,7 @@ const AvatarGlow = styled.div`
   animation: ${glow} 3s ease-in-out infinite;
 `;
 
-const AvatarFrame = styled.img`
+const AvatarFrame = styled.canvas`
   position: absolute;
   inset: 0;
   width: 100%;
@@ -460,34 +460,59 @@ const AvatarFrame = styled.img`
 `;
 
 /* ── Tech badges (orbiting & skill bars) ── */
-const OrbitalBadgeWrapper = styled.div`
+const SkillTitle = styled.h3`
   position: absolute;
-  z-index: 5;
-  top: ${({ $top }) => $top || 'auto'};
-  bottom: ${({ $bottom }) => $bottom || 'auto'};
-  left: ${({ $left }) => $left || 'auto'};
-  right: ${({ $right }) => $right || 'auto'};
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  width: 100vw;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.fonts.heading};
+  font-size: clamp(5rem, 16vw, 22rem); /* Make it much larger to fill width */
+  font-weight: 900;
+  visibility: hidden; /* Use visibility for autoAlpha */
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0; /* Sit way behind the avatar and badges as a watermark */
+  line-height: 0.85; /* Tighter line height for such large text */
+  will-change: opacity, transform, visibility;
+  letter-spacing: -4px; /* Tighter letter spacing for massive impact */
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    font-size: clamp(4rem, 20vw, 8rem);
+    top: 45%;
+  }
 `;
 
-const OrbitalBadgeInner = styled.div`
+const SkillBarsContainer = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 5%;
+  pointer-events: none;
+  z-index: 5;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => theme.colors.shadowLg};
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.text};
-  animation: ${float} ${({ $speed }) => $speed || '4s'} ease-in-out infinite;
-  animation-delay: ${({ $delay }) => $delay || '0s'};
+  flex-wrap: wrap;
+  align-content: center; /* Center vertically on desktop */
+  gap: 1rem;
+  padding-top: 0; /* Remove 30vh padding to center naturally */
+  width: 40%; /* Take up right half of screen */
+  justify-content: flex-start; /* Align items to the start of the right-side box */
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    width: 90%;
+    inset-inline-end: 5%;
+    inset-inline-start: 5%;
+    padding-top: 60vh; /* Keep pushed down below avatar on mobile */
+    align-content: flex-start;
+    justify-content: center;
+  }
 `;
 
 const SkillBarWrapper = styled.div`
-  position: absolute;
-  z-index: 5;
+  position: relative; /* Changed from absolute to flow in flex container */
   display: flex;
   align-items: center;
   border-radius: ${({ theme }) => theme.radii.full};
@@ -499,14 +524,16 @@ const SkillBarWrapper = styled.div`
   overflow: hidden;
   white-space: nowrap;
   color: ${({ theme }) => theme.colors.text};
-  opacity: 0; /* Hidden initially */
-  width: 50px; /* Starts small */
-  right: 8%; /* Fixed right position */
+  visibility: hidden;
+  opacity: 0;
+  width: 50px;
+  will-change: opacity, transform, width, visibility;
+  transform: translateZ(0);
 `;
 
 const SkillFill = styled.div`
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   top: 0;
   height: 100%;
   width: 0%;
@@ -526,7 +553,7 @@ const BadgeContent = styled.div`
 `;
 
 const SkillPercent = styled.span`
-  margin-left: auto;
+  margin-inline-start: auto;
   opacity: 0;
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 0.75rem;
@@ -558,8 +585,8 @@ const OrbitDot = styled.div`
   border-radius: 50%;
   background: ${({ $color }) => $color};
   top: ${({ $top }) => $top};
-  left: ${({ $left }) => $left};
-  right: ${({ $right }) => $right};
+  inset-inline-start: ${({ $left }) => $left};
+  inset-inline-end: ${({ $right }) => $right};
   bottom: ${({ $bottom }) => $bottom};
   box-shadow: 0 0 15px ${({ $color }) => $color}88;
 `;
@@ -617,20 +644,39 @@ const ScrollText = styled.span`
    ══════════════════════════════════════════ */
 
 export default function Hero() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const canvasRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const avatarRef = useRef(null);
   const heroRef = useRef(null);
   const textColumnRef = useRef(null);
   const avatarColumnRef = useRef(null);
+  const frameImgRef = useRef(null);
+
+  /* ── 12 Badges Config ── */
+  const BADGES = [
+    { name: 'React', emoji: '⚛️', color: '#61DAFB', percent: '90%' },
+    { name: 'Next.js', emoji: '▲', color: '#a0a0a0', percent: '85%' },
+    { name: 'Node.js', emoji: '🟢', color: '#68A063', percent: '80%' },
+    { name: 'Firebase', emoji: '🔥', color: '#FFCA28', percent: '85%' },
+    { name: 'PostgreSQL', emoji: '🐘', color: '#336791', percent: '75%' },
+    { name: 'MySQL', emoji: '🐬', color: '#4479A1', percent: '80%' },
+    { name: 'PHP', emoji: '🟣', color: '#777BB4', percent: '70%' },
+    { name: 'Python', emoji: '🐍', color: '#3776AB', percent: '65%' },
+    { name: 'styled-comp.', emoji: '💅', color: '#DB7093', percent: '90%' },
+    { name: 'REST API', emoji: '🔌', color: '#009688', percent: '95%' },
+    { name: 'Three.js', emoji: '📐', color: '#000000', percent: '50%' },
+    { name: 'GSAP', emoji: '✨', color: '#88CE02', percent: '80%' },
+  ];
 
   /* ── Frame sequences ── */
   const idleFrames = useRef(buildFramePaths('idle', IDLE_FRAME_COUNT));
   const scrollFrames = useRef(buildFramePaths('scroll', SCROLL_FRAME_COUNT));
   const actionFrames = useRef(buildFramePaths('action', ACTION_FRAME_COUNT));
 
-  const [currentFrame, setCurrentFrame] = useState('/avatar/idle/frame_001.webp');
+  const preloadedImages = useRef({}); // src -> Image mapping
+  const lastDrawnFrameRef = useRef(null);
+
   const [framesLoaded, setFramesLoaded] = useState(false);
   const animState = useRef('idle'); // 'idle' | 'scroll' | 'action'
   const loopTimerRef = useRef(null);
@@ -644,14 +690,41 @@ export default function Hero() {
       ...actionFrames.current,
     ];
     let loaded = 0;
+
+    // Check loading progress
+    const checkLoaded = () => {
+      loaded++;
+      if (loaded >= allFrames.length) setFramesLoaded(true);
+    };
+
     allFrames.forEach((src) => {
       const img = new Image();
-      img.onload = img.onerror = () => {
-        loaded++;
-        if (loaded >= allFrames.length) setFramesLoaded(true);
-      };
+      img.onload = checkLoaded;
+      img.onerror = checkLoaded; // Count errors so we don't stall forever
       img.src = src;
+      preloadedImages.current[src] = img;
     });
+  }, []);
+
+  /* ── Draw Frame Helper ── */
+  const drawFrame = useCallback((src) => {
+    if (lastDrawnFrameRef.current === src) return; // Prevent redundant drawing
+    const canvas = frameImgRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d', { alpha: true });
+    const img = preloadedImages.current[src];
+
+    if (img && img.complete && img.naturalWidth > 0) {
+      // Ensure canvas sizing matches image dimensions for object-fit: contain to work properly
+      if (canvas.width !== img.naturalWidth) {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      lastDrawnFrameRef.current = src;
+    }
   }, []);
 
   /* ── Loop animation helper ── */
@@ -662,15 +735,17 @@ export default function Hero() {
 
     const tick = () => {
       loopIndexRef.current = (loopIndexRef.current + 1) % frames.length;
-      setCurrentFrame(frames[loopIndexRef.current]);
+      drawFrame(frames[loopIndexRef.current]);
 
       // If we just wrapped to frame 0, pause before replaying
       const delay = loopIndexRef.current === 0 ? LOOP_PAUSE_MS : frameDelay;
       loopTimerRef.current = setTimeout(tick, delay);
     };
 
+    // Draw first frame immediately
+    drawFrame(frames[0]);
     loopTimerRef.current = setTimeout(tick, frameDelay);
-  }, []);
+  }, [drawFrame]);
 
   const stopLoop = useCallback(() => {
     if (loopTimerRef.current) {
@@ -726,7 +801,7 @@ export default function Hero() {
                 SCROLL_FRAME_COUNT - 1,
                 Math.floor(progress * SCROLL_FRAME_COUNT)
               );
-              setCurrentFrame(scrollFrames.current[frameIndex]);
+              drawFrame(scrollFrames.current[frameIndex]);
             }
           },
         }
@@ -735,17 +810,17 @@ export default function Hero() {
       // Animate text column to disappear
       tl.to(textColumnRef.current, {
         opacity: 0,
-        x: -50,
+        x: isRTL ? 50 : -50,
         duration: 1,
         ease: 'power1.inOut'
       }, 0);
 
-      // Animate avatar to move from right to left
+      // Animate avatar to move from right to left (or reverse for RTL)
       tl.to(avatarColumnRef.current, {
         x: () => {
           // calculate movement to approx center or left side
           const isMobile = window.innerWidth <= 1024;
-          return isMobile ? 0 : -window.innerWidth * 0.35;
+          return isMobile ? 0 : (isRTL ? window.innerWidth * 0.35 : -window.innerWidth * 0.35);
         },
         duration: 1,
         ease: 'power1.inOut'
@@ -762,87 +837,79 @@ export default function Hero() {
       const skillBars = gsap.utils.toArray('.skill-bar-wrapper');
 
       // Phase 1: Orbit badges already move left because they are children of AvatarColumn!
-      // We don't need to animate them in Phase 1 manually anymore.
-
-      const badgeColors = [
-        'rgba(97, 218, 251, 0.4)', // React cyan
-        'rgba(160, 160, 160, 0.4)', // Next.js gray
-        'rgba(104, 160, 99, 0.4)'  // Node.js green
-      ];
 
       // Reset color overlay initially
       tl.set('.hero-color-overlay', { backgroundColor: 'transparent' }, 0);
-      tl.set(skillBars, { opacity: 0, width: 50 }, 0); // Hide skill bars initially
+      tl.set(skillBars, { autoAlpha: 0, width: 50, scale: 0.2 }, 0); // Hide skill bars initially
+      tl.set('.skill-title', { autoAlpha: 0 }, 0); // Hide skill title initially
 
+      // Reveal the title when the first batch impacts (at time 1.0)
+      tl.to('.skill-title', {
+        autoAlpha: 0.08, // Increased opacity as requested
+        duration: 2,
+        ease: 'power2.out'
+      }, 0.8);
+
+      // Stagger badges in rapid succession (0.2s between each) to save timeline space
       orbitalBadges.forEach((badge, index) => {
-        const startTime = 1 + index * 1.5;
+        const startTime = 0.5 + index * 0.15; // Extremely dense timeline: 0.5, 0.65, 0.8, 0.95...
+        const impactTime = startTime + 0.3; // Very fast travel time
 
-        // Phase 2: Shoot to the right side
-        // Since the badge is inside the avatar (which moved left), we translate it far right
-        const targetX = () => window.innerWidth <= 1024 ? 200 : window.innerWidth * 0.6;
-        const targetY = (index - 1) * 80; // Spread them vertically based on index
+        // Calculate a random spray direction to shoot out of the avatar before locking into the grid
+        const angle = (Math.PI * 2 * index) / orbitalBadges.length;
+        const radius = 300;
+        const targetX = Math.cos(angle) * radius * (isRTL ? -1 : 1);
+        const targetY = Math.sin(angle) * radius;
 
+        // Phase 2: Shoot wildly into the screen
         tl.to(badge, {
-          x: targetX, // Shoot out of orbit
+          x: targetX,
           y: targetY,
-          duration: 0.5,
-          ease: 'power3.in'
+          duration: 0.3,
+          ease: 'power2.in'
         }, startTime);
 
-        const impactTime = startTime + 0.5;
-
-        // Phase 3: The exact moment of impact it explodes
+        // Phase 3: Exact moment of impact
         tl.to(badge, {
-          scale: 4, // Explosion scale
-          opacity: 0,
-          duration: 0.2,
+          scale: 3, // Smaller explosion since there are so many
+          autoAlpha: 0, // Need to make it disappear
+          duration: 0.15,
           ease: 'power1.out'
         }, impactTime);
 
-        // Wash background color exactly ON impact
-        tl.to('.hero-color-overlay', {
-          backgroundColor: badgeColors[index],
-          duration: 0.6,
-          ease: 'power2.out'
+        // Missing background color flash per user request
+
+        // Reveal the Flexbox Grid Skill Bar popping out of the exact same moment
+        const skillBar = skillBars[index];
+        const targetWidth = () => window.innerWidth <= 1024 ? 140 : 180; // Smaller bars to fit 2+ columns
+
+        // Pop the bar in its natural Flexbox grid position (no absolute top/left needed)
+        tl.to(skillBar, {
+          autoAlpha: 1,
+          scale: 1,
+          width: targetWidth,
+          duration: 0.4,
+          ease: 'back.out(1.5)'
         }, impactTime);
 
-        // Reveal Skill Bar popping out of explosion
-        const skillBar = skillBars[index];
-        const targetWidth = () => window.innerWidth <= 1024 ? 180 : 250;
-
-        tl.fromTo(skillBar,
-          {
-            top: () => `${35 + index * 15}%`,
-            scale: 0.2, // Pop from inside explosion
-            opacity: 0,
-            width: 50
-          },
-          {
-            opacity: 1,
-            scale: 1,
-            width: targetWidth,
-            duration: 0.4,
-            ease: 'back.out(2)' // strong pop
-          }, impactTime);
-
-        // Fill skill bar immediately after pop
+        // Fill skill bar percent
         tl.to(skillBar.querySelector('.skill-fill'), {
           width: (i, el) => el.getAttribute('data-percent'),
-          duration: 0.6,
+          duration: 0.4,
           ease: 'power2.out'
-        }, impactTime + 0.2);
+        }, impactTime + 0.1);
 
         // Show percent text
         tl.to(skillBar.querySelector('.skill-percent'), {
           opacity: 1,
-          duration: 0.4
-        }, impactTime + 0.4);
+          duration: 0.2
+        }, impactTime + 0.2);
       });
 
     }, heroRef);
 
     return () => ctx.revert();
-  }, [framesLoaded, startLoop, stopLoop]);
+  }, [framesLoaded, startLoop, stopLoop, isRTL]);
 
   /* ── Particle field ── */
   useEffect(() => {
@@ -857,11 +924,18 @@ export default function Hero() {
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
+
+    // Use resize observer for more performant resizing without layout thrashing
+    let resizeTimeout;
+    const handleResize = () => {
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resize, 100);
+    };
+    window.addEventListener('resize', handleResize);
 
     const createParticles = () => {
       particles = [];
-      const count = Math.min(100, Math.floor(window.innerWidth / 12));
+      const count = Math.min(80, Math.floor(window.innerWidth / 15)); // Slightly reduced count for better scroll perf
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -883,8 +957,9 @@ export default function Hero() {
       particles.forEach((p, i) => {
         const dx = mx - p.x;
         const dy = my - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 180) {
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 32400) { // 180 * 180 = 32400
+          const dist = Math.sqrt(distSq);
           const force = (180 - dist) / 180;
           p.x -= dx * force * 0.015;
           p.y -= dy * force * 0.015;
@@ -898,15 +973,16 @@ export default function Hero() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, ${p.opacity})`;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `hsla(${p.hue}, 70%, 65%, 0.3)`;
         ctx.fill();
-        ctx.shadowBlur = 0;
 
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
-          const d = Math.sqrt(Math.pow(p.x - p2.x, 2) + Math.pow(p.y - p2.y, 2));
-          if (d < 130) {
+          const dx2 = p.x - p2.x;
+          const dy2 = p.y - p2.y;
+          const dist2Sq = dx2 * dx2 + dy2 * dy2;
+
+          if (dist2Sq < 16900) { // 130 * 130 = 16900
+            const d = Math.sqrt(dist2Sq);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -918,14 +994,27 @@ export default function Hero() {
       });
       animId = requestAnimationFrame(animate);
     };
-    animate();
+
+    // Only animate when hero is in view
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        if (!animId) animate();
+      } else {
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      }
+    });
+    observer.observe(heroRef.current);
 
     const handleMouseMove = (e) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true }); // passive listener
 
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
+      if (animId) cancelAnimationFrame(animId);
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
@@ -958,6 +1047,12 @@ export default function Hero() {
 
       {/* ── Content: Split Layout ── */}
       <HeroContainer>
+        <SkillTitle className="skill-title">
+          <span>{t('skills.title').substring(0, t('skills.title').lastIndexOf(' '))}</span>
+          <br />
+          <span>{t('skills.title').substring(t('skills.title').lastIndexOf(' ') + 1)}</span>
+        </SkillTitle>
+
         <TextColumn ref={textColumnRef}>
           <Greeting>
             <StatusDot />
@@ -1012,56 +1107,63 @@ export default function Hero() {
             </OrbitRing>
 
             {/* Orbital Badges (Inside AvatarWrapper to tightly anchor to the Avatar) */}
-            <OrbitalBadgeWrapper className="orbital-badge" $top="15%" $right="5%">
-              <OrbitalBadgeInner $speed="4s" $delay="0s">
-                <BadgeEmoji>⚛️</BadgeEmoji>
-              </OrbitalBadgeInner>
-            </OrbitalBadgeWrapper>
+            {BADGES.map((badge, index) => {
+              // Generate deterministic starting positions based on index so server/client match (fix hydration error)
+              // pseudo-random using index to spread them out predictably
+              const pseudoRandom1 = (index * 7) % 80; // 0 to 79
+              const pseudoRandom2 = (index * 13) % 20; // 0 to 19
 
-            <OrbitalBadgeWrapper className="orbital-badge" $bottom="25%" $left="10%">
-              <OrbitalBadgeInner $speed="5s" $delay="0.5s">
-                <BadgeEmoji>▲</BadgeEmoji>
-              </OrbitalBadgeInner>
-            </OrbitalBadgeWrapper>
+              const top = `${pseudoRandom1 + 10}%`;
+              const left = index % 2 === 0 ? `${pseudoRandom2 - 10}%` : 'auto';
+              const right = index % 2 !== 0 ? `${pseudoRandom2 - 10}%` : 'auto';
+              const delay = `${index * 0.3}s`;
+              const speed = `${4 + (index % 3)}s`;
 
-            <OrbitalBadgeWrapper className="orbital-badge" $top="50%" $left="-5%">
-              <OrbitalBadgeInner $speed="6s" $delay="1s">
-                <BadgeEmoji>🟢</BadgeEmoji>
-              </OrbitalBadgeInner>
-            </OrbitalBadgeWrapper>
+              return (
+                <div
+                  key={`orbit-${badge.name}`}
+                  className="orbital-badge"
+                  style={{
+                    position: 'absolute',
+                    zIndex: 5,
+                    top,
+                    left: !isRTL ? left : right,
+                    right: !isRTL ? right : left,
+                  }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: '45px', height: '45px', borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.1)', fontSize: '1.2rem',
+                    animation: `float ${speed} ease-in-out infinite`,
+                    animationDelay: delay
+                  }}>
+                    <BadgeEmoji>{badge.emoji}</BadgeEmoji>
+                  </div>
+                </div>
+              );
+            })}
 
             <AvatarFrame
-              src={currentFrame}
-              alt="El Mehdi Bekkous 3D Avatar"
-              draggable={false}
+              ref={frameImgRef}
+              role="img"
+              aria-label="El Mehdi Bekkous 3D Avatar"
             />
           </AvatarWrapper>
         </AvatarColumn>
 
         {/* Right side Skill Bars (appear after explosion impact) */}
-        <SkillBarWrapper className="skill-bar-wrapper">
-          <SkillFill className="skill-fill" $color="#61DAFB" data-percent="90%" />
-          <BadgeContent>
-            <BadgeEmoji>⚛️</BadgeEmoji> React
-            <SkillPercent className="skill-percent" $color="#61DAFB">90%</SkillPercent>
-          </BadgeContent>
-        </SkillBarWrapper>
-
-        <SkillBarWrapper className="skill-bar-wrapper">
-          <SkillFill className="skill-fill" $color="#a0a0a0" data-percent="85%" />
-          <BadgeContent>
-            <BadgeEmoji>▲</BadgeEmoji> Next.js
-            <SkillPercent className="skill-percent" $color="#a0a0a0">85%</SkillPercent>
-          </BadgeContent>
-        </SkillBarWrapper>
-
-        <SkillBarWrapper className="skill-bar-wrapper">
-          <SkillFill className="skill-fill" $color="#68A063" data-percent="80%" />
-          <BadgeContent>
-            <BadgeEmoji>🟢</BadgeEmoji> Node.js
-            <SkillPercent className="skill-percent" $color="#68A063">80%</SkillPercent>
-          </BadgeContent>
-        </SkillBarWrapper>
+        <SkillBarsContainer>
+          {BADGES.map((badge, index) => (
+            <SkillBarWrapper key={`skill-${badge.name}`} className="skill-bar-wrapper">
+              <SkillFill className="skill-fill" $color={badge.color} data-percent={badge.percent} />
+              <BadgeContent>
+                <BadgeEmoji>{badge.emoji}</BadgeEmoji> {badge.name}
+                <SkillPercent className="skill-percent" $color={badge.color}>{badge.percent}</SkillPercent>
+              </BadgeContent>
+            </SkillBarWrapper>
+          ))}
+        </SkillBarsContainer>
 
       </HeroContainer>
 
