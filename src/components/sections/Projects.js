@@ -14,9 +14,13 @@ const ProjectsSection = styled.section`
   background-color: ${({ theme }) => theme.colors.bg || '#050505'};
   color: ${({ theme }) => theme.colors.text || 'white'};
   z-index: 5;
-  /* Crucial: override global section { overflow: hidden } to allow sticky! */
-  overflow: visible !important;
-  clip-path: inset(0); /* Hide horizontal scrolling elements safely */
+  
+  /* 
+    'overflow: clip' cleanly overrides any global 'overflow: hidden' 
+    on <section> tags without creating a new scroll container. 
+    This is REQUIRED for 'position: sticky' to reach the window viewport!
+  */
+  overflow: clip;
 
   .font-anton {
     font-family: 'Anton', sans-serif;
@@ -53,6 +57,7 @@ const StickyContainer = styled.div`
   height: 100dvh; /* dvh ensures mobile Safari/Chrome UI bars don't hide the bottom of the container! */
   width: 100%;
   overflow: hidden;
+  direction: ltr; /* Force LTR so overflow:hidden clips from the left in RTL (Arabic) mode */
   background-color: ${({ theme }) => theme.colors.bg || '#050505'};
 `;
 
@@ -135,6 +140,10 @@ const ScrollContainer = styled.div`
   height: 100%;
   width: max-content;
   will-change: transform;
+  /* Force LTR so the flex order is always left-to-right.
+     GSAP handles RTL via positive x-translation — if we let the browser
+     reverse the flex items we get a double-reversal that hides projects. */
+  direction: ltr;
 `;
 
 const Slide = styled.section`
@@ -241,6 +250,7 @@ const ProjectInfo = styled.div`
   flex-direction: column;
   gap: 0.75rem;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  direction: inherit; /* Allow Arabic text inside slides to render RTL correctly */
   
   @media (min-width: 768px) {
     bottom: 2.5rem;
@@ -332,90 +342,110 @@ export default function Projects() {
   const containerRef = useRef(null);
   const progressBarRef = useRef(null);
   const cursorRef = useRef(null);
+
   const [sectionHeight, setSectionHeight] = useState('400vh');
 
   // Calculate required height based on number of projects
   useEffect(() => {
-    let refreshTimeout;
     const updateHeight = () => {
-      // 100vh for each project to ensure enough scroll duration
       const totalHeight = (projects.length * window.innerWidth) + window.innerHeight;
       setSectionHeight(`${totalHeight}px`);
-
-      // Give the DOM a tiny moment to apply the new height before recalculating triggers
-      clearTimeout(refreshTimeout);
-      refreshTimeout = setTimeout(() => ScrollTrigger.refresh(), 50);
     };
 
     updateHeight();
     window.addEventListener('resize', updateHeight);
-    return () => {
-      clearTimeout(refreshTimeout);
-      window.removeEventListener('resize', updateHeight);
-    };
+    return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // GSAP ScrollTrigger Logic (No pinning, just scroll tracking)
+  // GSAP ScrollTrigger Logic
+  // CRITICAL: We delay initialization to ensure Hero's pin-spacer (+=400vh) 
+  // has been injected into the DOM. Without this, ScrollTrigger calculates 
+  // our "top top" start position ~400vh too early because the spacer doesn't 
+  // exist yet when we mount.
   useEffect(() => {
     if (!sectionRef.current || !containerRef.current) return;
 
     let ctx;
+    // 500ms delay ensures Hero's pin-spacer is in the DOM before we calculate positions
     const timer = setTimeout(() => {
       ctx = gsap.context(() => {
-        // Calculate total horizontal width needed to show all slides.
-        const getScrollAmount = () => (projects.length - 1) * window.innerWidth;
+        const winWidth = window.innerWidth;
+        const totalScrollDistance = (projects.length - 1) * winWidth;
+        // Always negative: direction:ltr on the container means layout is always left→right,
+        // so we always translate LEFT to reveal the next project.
+        const targetX = -totalScrollDistance;
 
-        gsap.to(containerRef.current, {
-          x: () => isRtl ? getScrollAmount() : -getScrollAmount(),
-          ease: "none",
+        // Initialize base state
+        gsap.set(containerRef.current, { x: 0 });
+        if (progressBarRef.current) {
+          gsap.set(progressBarRef.current, { scaleX: 0, transformOrigin: 'left' });
+        }
+
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top top",
             end: "bottom bottom",
             scrub: 1,
             invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              if (progressBarRef.current) {
-                // Invert progress bar tracking origin visually in RTL
-                progressBarRef.current.style.transformOrigin = isRtl ? 'right' : 'left';
-                progressBarRef.current.style.transform = `scaleX(${self.progress})`;
-              }
-
-              const winWidth = window.innerWidth;
-              const currentScroll = self.progress * getScrollAmount();
-
-              const slides = containerRef.current.querySelectorAll('.slide');
-              slides.forEach((slide) => {
-                const index = parseInt(slide.dataset.index || 0);
-
-                // For RTL, visually invert the indexing so distance offsets calculate from right to left
-                const slideLeft = isRtl
-                  ? ((projects.length - 1 - index) * winWidth) - currentScroll
-                  : (index * winWidth) - currentScroll;
-
-                const progressRatio = slideLeft / winWidth;
-
-                const img = slide.querySelector('.parallax-bg');
-                if (img) {
-                  img.style.transform = `translate3d(${progressRatio * -25}%, 0, 0) scale(1.3)`;
-                }
-
-                const titles = slide.querySelectorAll('.title-parallax');
-                titles.forEach((title) => {
-                  title.style.transform = `translate3d(${progressRatio * 5}%, 0, 0)`;
-                });
-              });
-            }
+            // LOWER priority = refreshes AFTER Hero (priority 1).
+            // This guarantees we see the correct document height including Hero's pin-spacer.
+            refreshPriority: -1,
           }
         });
+
+        // 5% pause so the first project stays visible briefly before scrolling begins
+        tl.to({}, { duration: 0.05 });
+
+        // Horizontal slide for the remaining 95% of the scroll duration
+        tl.to(containerRef.current, {
+          x: targetX,
+          ease: "none",
+          duration: 0.95
+        }, 0.05);
+
+        // Progress bar
+        if (progressBarRef.current) {
+          tl.to(progressBarRef.current, {
+            scaleX: 1,
+            ease: "none",
+            duration: 0.95
+          }, 0.05);
+        }
+
+        // Per-slide parallax
+        const slides = containerRef.current.querySelectorAll('.slide');
+        slides.forEach((slide) => {
+          const img = slide.querySelector('.parallax-bg');
+          if (img) {
+            tl.to(img, {
+              x: "25%",
+              ease: "none",
+              duration: 0.95
+            }, 0.05);
+          }
+
+          const titles = slide.querySelectorAll('.title-parallax');
+          titles.forEach((title) => {
+            tl.to(title, {
+              x: "-5%",
+              ease: "none",
+              duration: 0.95
+            }, 0.05);
+          });
+        });
+
       }, sectionRef);
-    }, 100);
+
+      // One final refresh after our ScrollTrigger is created
+      ScrollTrigger.refresh();
+    }, 500);
 
     return () => {
       clearTimeout(timer);
       if (ctx) ctx.revert();
     };
-  }, [isRtl]);
+  }, [isRtl, projects.length]);
 
   // Custom Cursor Logic (desktop only — cursor is hidden on touch devices)
   useEffect(() => {
@@ -488,7 +518,7 @@ export default function Projects() {
 
         <ScrollHintWrapper>
           <ScrollHintText>
-            {language === 'fr' ? 'Faites défiler ↓' : 'Scroll Down ↓'}
+            {t('projects.scrollHint')}
           </ScrollHintText>
         </ScrollHintWrapper>
 

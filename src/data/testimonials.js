@@ -31,4 +31,36 @@ export const testimonials = [
         rating: 5,
         avatar: '👨‍🚀',
     },
+    {
+        id: 5,
+        name: 'Lucas Morel',
+        role: 'Lead Designer',
+        content: "The level of creativity and technical skill is unmatched. They took our vague ideas and built a truly modern user experience that our clients love.",
+        rating: 5,
+        avatar: '🎨',
+    },
+    {
+        id: 6,
+        name: 'Sophie Laurent',
+        role: 'Marketing Director',
+        content: "From the initial consultation to the final deployment, the communication was stellar. A highly reliable partner for complex frontend architecture.",
+        rating: 5,
+        avatar: '📈',
+    },
+    {
+        id: 7,
+        name: 'David Smith',
+        role: 'Indie Hacker',
+        content: "Performance optimization was our biggest bottleneck, and they resolved it in record time while also elevating our design language.",
+        rating: 5,
+        avatar: '🚀',
+    },
+    {
+        id: 8,
+        name: 'Youssef Alaoui',
+        role: 'E-commerce Owner',
+        content: "I've worked with many developers, but very few possess this combination of backend robustness and front-end magic. Spectacular results!",
+        rating: 5,
+        avatar: '🛒',
+    }
 ];

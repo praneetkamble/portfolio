@@ -106,6 +106,11 @@ const HeroSection = styled.section`
   align-items: center;
   overflow: visible; /* Override standard section overflow to allow blobs to float into next section */
   padding: 6rem 0 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 5rem 0 1rem;
+    min-height: 100dvh;
+  }
 `;
 
 /* ── Background layers ── */
@@ -187,6 +192,10 @@ const HeroContainer = styled.div`
     text-align: center;
     gap: 3rem;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 1.5rem;
+  }
 `;
 
 /* ── Left: Text Content ── */
@@ -229,6 +238,11 @@ const NameWrapper = styled.h1`
   line-height: 1.05;
   letter-spacing: -2px;
   margin-bottom: 1.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 2.75rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const NameLine = styled.div`
@@ -275,6 +289,10 @@ const RoleWrapper = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     justify-content: center;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const RoleLine = styled.div`
@@ -306,6 +324,12 @@ const Subtitle = styled.p`
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     margin-left: auto;
     margin-right: auto;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
   }
 
   strong {
@@ -445,8 +469,8 @@ const AvatarWrapper = styled.div`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 250px;
-    height: 310px;
+    width: 200px;
+    height: 250px;
     animation: none; /* Disable float animation on mobile for GPU savings */
   }
 `;
@@ -814,6 +838,7 @@ export default function Hero() {
           pin: true,
           pinSpacing: true,
           scrub: 0.5,
+          refreshPriority: 1, // Recalculate FIRST so pin-spacer height is known before downstream triggers
           onUpdate: (self) => {
             const progress = self.progress; // 0 → 1
 

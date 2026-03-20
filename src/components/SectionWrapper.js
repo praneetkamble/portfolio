@@ -63,7 +63,7 @@ const SectionDescription = styled.p`
   margin-bottom: ${({ theme }) => theme.spacing['3xl']};
 `;
 
-export default function SectionWrapper({ children, id, label, title, description }) {
+export default function SectionWrapper({ children, id, label, title, description, fullWidth = false }) {
     const ref = useRef(null);
 
     useEffect(() => {
@@ -85,8 +85,9 @@ export default function SectionWrapper({ children, id, label, title, description
                 {label && <SectionLabel>{label}</SectionLabel>}
                 {title && <SectionTitle>{title}</SectionTitle>}
                 {description && <SectionDescription>{description}</SectionDescription>}
-                {children}
+                {!fullWidth && children}
             </Container>
+            {fullWidth && children}
         </SectionContainer>
     );
 }

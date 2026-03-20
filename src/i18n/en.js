@@ -43,16 +43,16 @@ export const en = {
 
     // Skills
     skills: {
-        label: 'Skills',
-        title: 'My Tech Stack',
-        description: 'Technologies I work with to bring ideas to life.',
-        frontend: 'Frontend',
-        frontendDesc: 'Building beautiful, responsive interfaces',
-        backend: 'Backend',
-        backendDesc: 'Scalable server-side solutions',
-        devops: 'DevOps & Tools',
-        devopsDesc: 'Deployment & workflow optimization',
-    },
+    label: "EXPERTISE",
+    title: "What I Do",
+    description: "Architecting modern digital experiences with a focus on clean code, scalable infrastructure, and pixel-perfect design.",
+    frontend: "Frontend Engineering",
+    frontendDesc: "Crafting pixel-perfect, accessible, and highly interactive user interfaces. I turn complex logic into fluid, natural experiences.",
+    backend: "Backend Architecture",
+    backendDesc: "Designing scalable APIs, robust business logic, and secure database infrastructures to power your applications from the ground up.",
+    devops: "UI/UX Prototyping",
+    devopsDesc: "Bridging the gap between design and technical implementation with rapid, high-fidelity interactive prototypes that validate user flows."
+  },
 
     // Projects
     projects: {
@@ -60,6 +60,7 @@ export const en = {
         title: 'Featured Projects',
         description: "Some of my recent work that I'm proud of.",
         all: 'All',
+        scrollHint: 'Scroll Down ↓',
         viewProject: 'View Project',
         items: [
             {
@@ -105,6 +106,10 @@ export const en = {
             { content: 'Working with El Mehdi was a game-changer for our project. His expertise in Next.js and modern web technologies resulted in a blazing-fast, beautiful application.' },
             { content: 'The dashboard El Mehdi built for us transformed how we handle data. Clean code, great performance, and pixel-perfect design. Highly recommended!' },
             { content: 'El Mehdi is a rare talent who combines strong technical skills with an eye for design. He delivered our project on time and the results speak for themselves.' },
+            { content: "The level of creativity and technical skill is unmatched. They took our vague ideas and built a truly modern user experience that our clients love." },
+            { content: "From the initial consultation to the final deployment, the communication was stellar. A highly reliable partner for complex frontend architecture." },
+            { content: "Performance optimization was our biggest bottleneck, and they resolved it in record time while also elevating our design language." },
+            { content: "I've worked with many developers, but very few possess this combination of backend robustness and front-end magic. Spectacular results!" },
         ],
     },
 
@@ -128,6 +133,25 @@ export const en = {
         sending: 'Sending...',
         sent: 'Message Sent!',
         copied: 'Email copied to clipboard!',
+        eyebrow: 'Contact',
+        title1: "Let's build",
+        titleAccent: "something",
+        title2: "great.",
+        subtitle: "Have a project in mind? I'd love to hear about it.",
+        availableStatus: "Available for freelance",
+        findMeOn: "Find me on",
+        copyHint: "click to copy",
+        copiedSucc: "Copied to clipboard ✓",
+        formTitle: "Send a message",
+        step: "Step",
+        of: "of",
+        topics: ['Freelance project', 'Collaboration', 'Job opportunity', 'Just saying hi 👋'],
+        namePlaceholder: "Your name",
+        emailPlaceholder: "your@email.com",
+        msgPlaceholder: "Tell me about your project...",
+        footnote: "Your info is safe with me. No spam, ever.",
+        successTitle: "Message sent!",
+        successSub: "Thanks for reaching out. I'll get back to you within 24 hours.",
     },
 
     // Footer
@@ -142,6 +166,10 @@ export const en = {
         consulting: 'Consulting',
         copyright: '© {year} El Mehdi Bekkous. Made with',
         backToTop: 'Back to top',
+        ctaLine1: 'Ready to build',
+        ctaLine2: 'something amazing?',
+        ctaSub: "Have a project concept or an idea you'd like to explore? Let's connect and turn your vision into reality.",
+        statusTitle: 'Current Status',
         ticker: ["Let's work together", '✦', 'Open for opportunities', '✦', 'Full-Stack Developer', '✦', 'Next.js Expert', '✦'],
     },
 

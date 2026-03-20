@@ -90,7 +90,7 @@ const SvgContainer = styled.div`
       }
       30% { opacity: 1; }
       100% {
-        transform: scale(0.65); /* Scale down entire SVG content to fit on mobile */
+        transform: scale(0.4); /* Scale down entire SVG content aggressively to fit on mobile */
         opacity: 1;
         filter: blur(0px);
       }
@@ -139,15 +139,17 @@ const SvgContainer = styled.div`
 const FallbackLoader = styled.div`
   position: absolute;
   bottom: 40px;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-size: ${({ $isRtl, theme }) => $isRtl ? theme.fontSizes.lg : theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
-  letter-spacing: 2px;
+  letter-spacing: ${({ $isRtl }) => $isRtl ? '1px' : '2px'};
+  text-align: center;
   opacity: ${({ $show }) => ($show ? 1 : 0)};
   transition: opacity 0.3s ease;
+  direction: ${({ $isRtl }) => $isRtl ? 'rtl' : 'ltr'};
 `;
 
 export default function Preloader() {
-  const { t } = useLanguage();
+  const { t, isRtl = false, language } = useLanguage();
   const theme = useStyledTheme();
   const [fadingOut, setFadingOut] = useState(false);
   const [gone, setGone] = useState(false);
@@ -159,9 +161,11 @@ export default function Preloader() {
       handleComplete();
     }, 3200);
 
+    // Show loading text immediately in Arabic (name animation is hidden in RTL)
+    // For EN/FR, show after 1500ms as a fallback hint
     const showFallbackTimer = setTimeout(() => {
       setShowFallback(true);
-    }, 1500);
+    }, isRtl ? 0 : 1500);
 
     return () => {
       clearTimeout(fallbackTimer);
@@ -182,7 +186,7 @@ export default function Preloader() {
 
   return (
     <Wrapper $fadeOut={fadingOut} $gone={gone}>
-      <SvgContainer>
+      <SvgContainer $isRtl={isRtl}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
           <defs>
             <radialGradient id="bg-gradient" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
@@ -190,7 +194,7 @@ export default function Preloader() {
               <stop offset="100%" stopColor={theme.colors.bgSecondary} />
             </radialGradient>
             <clipPath id="reveal-mask">
-              <rect x="770" y="300" width="1150" height="600" />
+              <rect x="620" y="300" width="1300" height="600" />
             </clipPath>
           </defs>
 
@@ -212,9 +216,13 @@ export default function Preloader() {
 
             <g clipPath="url(#reveal-mask)">
               <g transform="translate(830, 540)">
-                <g className="text-slide-anim">
-                  <text className="text-name" x="0" y="10">EL MEHDI BEKKOUS</text>
-                  <text className="text-title" x="5" y="65">WEB APP DEVELOPER</text>
+                <g className="text-slide-anim" style={{ direction: 'ltr' }}>
+                  <text className="text-name" x="0" y="10" textAnchor="start">
+                    {language === 'ar' ? 'المهدي بكوس' : 'EL MEHDI BEKKOUS'}
+                  </text>
+                  <text className="text-title" x="5" y="65" textAnchor="start">
+                    {language === 'ar' ? 'مطور ويب متكامل' : language === 'fr' ? 'DÉVELOPPEUR WEB' : 'WEB APP DEVELOPER'}
+                  </text>
                 </g>
               </g>
             </g>
@@ -223,7 +231,7 @@ export default function Preloader() {
           <rect className="flash-overlay" width="1920" height="1080" />
         </svg>
       </SvgContainer>
-      <FallbackLoader $show={showFallback && !fadingOut}>{t('preloader.loading')}</FallbackLoader>
+      <FallbackLoader $show={showFallback && !fadingOut} $isRtl={isRtl}>{t('preloader.loading')}</FallbackLoader>
     </Wrapper>
   );
 }
