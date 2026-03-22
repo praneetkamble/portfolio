@@ -740,14 +740,36 @@ export default function Hero() {
   const loopTimerRef = useRef(null);
   const loopIndexRef = useRef(0);
 
-  /* ── Preload all frames ── */
+  const actionFramesLoaded = useRef(false); // Track whether action frames have been loaded
+
+  /* ── Lazy-load action frames (deferred until user scrolls 70%) ── */
+  const loadActionFrames = useCallback(() => {
+    if (actionFramesLoaded.current) return; // Only load once
+    actionFramesLoaded.current = true;
+
+    // On mobile, only load every other frame (same half-resolution strategy as other sequences)
+    const frames = isMobile
+      ? actionFrames.current.filter((_, i) => i % 2 === 0)
+      : actionFrames.current;
+
+    frames.forEach((src) => {
+      if (preloadedImages.current[src]) return; // Already cached
+      const img = new Image();
+      img.src = src;
+      preloadedImages.current[src] = img;
+    });
+  }, [isMobile]);
+
+  /* ── Preload critical frames (idle + scroll only) ── */
   useEffect(() => {
     if (isMobile === undefined) return;
 
+    // Action frames are deferred — only idle + scroll are needed at startup.
+    // This removes ~2.2MB (72 frames × ~31KB) from the critical loading path.
     let framesToLoad = [
       ...idleFrames.current,
       ...scrollFrames.current,
-      ...actionFrames.current,
+      // Note: actionFrames are NOT included here — they load lazily via loadActionFrames()
     ];
 
     let missingFrames = [];
@@ -901,6 +923,13 @@ export default function Hero() {
           onUpdate: (self) => {
             const progress = self.progress; // 0 → 1
 
+            // Lazy-load action frames when the user is 70% through the hero scroll.
+            // This gives the browser ~28% of the scroll distance as a download window
+            // before action frames are actually needed at 98%.
+            if (progress >= 0.70) {
+              loadActionFrames();
+            }
+
             if (progress <= 0.02) {
               // At the very top — idle loop
               if (animState.current !== 'idle') {
@@ -1027,7 +1056,7 @@ export default function Hero() {
       clearTimeout(refreshTimer);
       ctx.revert();
     };
-  }, [startLoop, stopLoop, isRTL, isMobile]);
+  }, [startLoop, stopLoop, isRTL, isMobile, loadActionFrames]);
 
   /* ── Particle field (mobile: 15 dots only, no connections) ── */
   useEffect(() => {

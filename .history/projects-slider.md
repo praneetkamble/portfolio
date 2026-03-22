@@ -1,3 +1,15 @@
+## 2026-03-22 - Next/Image Integration & AVIF Support
+
+**Modified Files:**
+- `src/components/sections/Projects.js` - Replaced `<img>` with Next.js `<Image>`
+- `next.config.mjs` - Enabled compression and AVIF formats
+
+**What Was Done:**
+- **Projects.js**: Replaced the native `<img>` tags in the slider with `next/image` components to leverage automatic WebP/AVIF format serving, lazy loading, and intelligent compression. The GSAP targeting was updated since `next/image` generates a wrapper element.
+- **next.config.mjs**: Added configuration for Next.js image optimization (`formats: ['image/avif', 'image/webp']`), enabled gzip/brotli compression, and removed the `X-Powered-By` header to slightly reduce response sizes and satisfy security scanners.
+
+---
+
 ## 2026-03-22 - Projects Browser UI & Staggered Parallax GSAP
 
 **Modified Files:**

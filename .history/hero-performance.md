@@ -1,3 +1,15 @@
+## 2026-03-22 - Action Frame Lazy Loading & Non-Blocking Fonts
+
+**Modified Files:**
+- `src/components/sections/Hero.js` - Lazy loaded action frames
+- `src/app/layout.js` - Non-blocking Google Fonts
+
+**What Was Done:**
+- **Hero.js**: Removed the 72 "action" frames from the initial preload array. They now lazy-load silently in the background when the user reaches 70% of the Hero scroll progress, saving ~2.2MB of initial bandwidth and significantly improving First Contentful Paint.
+- **layout.js**: Swapped the standard render-blocking `<link rel="stylesheet">` for Google Fonts with a high-performance preload technique (`rel="preload" as="style" onload="..."`) with a `<noscript>` fallback, resolving the main render-blocking resource identified by PageSpeed Insights.
+
+---
+
 ## 2026-03-22 - Progressive Mobile Framerate Loader
 
 **Modified Files:**

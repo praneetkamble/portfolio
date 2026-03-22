@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { projects } from '@/data/projects';
 import gsap from 'gsap';
@@ -268,17 +269,22 @@ const GradientOverlay = styled.div`
   }
 `;
 
-const ProjectImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  will-change: object-position, transform;
+/* ProjectImage replaced by next/image — see JSX below */
+const ProjectImageWrapper = styled.div`
+  position: absolute;
+  inset: 0;
+  will-change: transform;
   transition: transform 0.7s;
   transform: scale(1);
-  
+
+  /* Allow GSAP / CSS to animate objectPosition on the inner img */
+  img {
+    object-position: top;
+    transition: object-position 0s; /* GSAP controls this directly */
+  }
+
   ${ImageWrapper}:hover & {
-    transform: scale(1.05); /* Slight zoom, no distortion */
+    transform: scale(1.05);
   }
 `;
 
@@ -466,8 +472,10 @@ export default function Projects() {
         const segment = mainMoveDuration / Math.max(1, numSlides - 1);
 
         slides.forEach((slide, i) => {
-          const img = slide.querySelector('.parallax-bg');
-          if (img) {
+          // next/image renders an <img> inside the .parallax-bg wrapper div.
+          // We target the img element directly so objectPosition animation works.
+          const imgEl = slide.querySelector('.parallax-bg img') || slide.querySelector('.parallax-bg');
+          if (imgEl) {
             // Calculate strictly when this specific slide is panning through the viewport
             let startT = 0.05 + (i - 1) * segment;
             let dur = 2 * segment;
@@ -481,7 +489,7 @@ export default function Projects() {
             }
 
             // Scroll the tall screenshot downwards independently
-            tl.to(img, {
+            tl.to(imgEl, {
               objectPosition: "50% 100%", 
               ease: "none",
               duration: dur
@@ -622,11 +630,17 @@ export default function Projects() {
                   </BrowserBar>
                   <ImageInnerContainer>
                     <GradientOverlay />
-                    <ProjectImage
-                      src={translated?.image || projet.image}
-                      className="parallax-bg"
-                      alt={`Image du projet ${title}`}
-                    />
+                    <ProjectImageWrapper className="parallax-bg">
+                      <Image
+                        src={translated?.image || projet.image}
+                        alt={`Screenshot du projet ${title}`}
+                        fill
+                        sizes="(max-width: 768px) 80vw, 45vw"
+                        style={{ objectFit: 'cover', objectPosition: 'top' }}
+                        priority={index === 0}
+                        quality={80}
+                      />
+                    </ProjectImageWrapper>
                     <ProjectInfo>
                       <ProjectRole>
                         <RoleIndex>0{index + 1}</RoleIndex> {role}
