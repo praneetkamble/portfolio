@@ -774,15 +774,13 @@ export default function Hero() {
 
     let missingFrames = [];
 
-    // Phase 1 & 2: Optimize mobile networking by loading exactly half the frames.
+    // Phase 1 & 2: Optimize networking by loading exactly half the frames initially.
     // drawFrame() safely skips missing images, creating a 15fps baseline.
     // Once Phase 1 completes, missingFrames are downloaded in the background
     // for an automatic, seamless upgrade to 30fps without stuttering!
-    if (isMobile) {
-      const evens = framesToLoad.filter((_, i) => i % 2 === 0);
-      missingFrames = framesToLoad.filter((_, i) => i % 2 !== 0);
-      framesToLoad = evens;
-    }
+    const evens = framesToLoad.filter((_, i) => i % 2 === 0);
+    missingFrames = framesToLoad.filter((_, i) => i % 2 !== 0);
+    framesToLoad = evens;
 
     let loaded = 0;
 
