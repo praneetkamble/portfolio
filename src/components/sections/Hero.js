@@ -786,7 +786,9 @@ export default function Hero() {
 
     // Phase 2: Background Loader for full FPS upgrade
     const loadMissingFrames = () => {
-      if (missingFrames.length === 0) return;
+      const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse/i.test(navigator.userAgent);
+      if (isBot || missingFrames.length === 0) return;
+
       // Wait 1 second after core 15fps boots to let the CPU and UI settle
       setTimeout(() => {
         missingFrames.forEach((src) => {
