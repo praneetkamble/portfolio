@@ -16,8 +16,14 @@ gsap.registerPlugin(ScrollTrigger);
 const IDLE_FRAME_COUNT = 36;
 const SCROLL_FRAME_COUNT = 96;
 const ACTION_FRAME_COUNT = 72;
+const HOVER_PROJECTS_FRAME_COUNT = 72;
+const HOVER_PROJECTS_LOOP_FRAME_COUNT = 72;
+const HOVER_CONTACT_FRAME_COUNT = 72;
+const HOVER_CONTACT_LOOP_FRAME_COUNT = 72;
 const IDLE_FPS = 10;
 const ACTION_FPS = 10;
+const HOVER_FPS = 24; // Match video frame rate for smooth playback
+const HOVER_LOOP_FPS = 10; // Slower for the idle-like loop pose
 const LOOP_PAUSE_MS = 2000;
 
 const buildFramePaths = (folder, count) =>
@@ -729,6 +735,10 @@ export default function Hero() {
   const idleFrames = useRef(buildFramePaths('idle', IDLE_FRAME_COUNT));
   const scrollFrames = useRef(buildFramePaths('scroll', SCROLL_FRAME_COUNT));
   const actionFrames = useRef(buildFramePaths('action', ACTION_FRAME_COUNT));
+  const hoverProjectsFrames = useRef(buildFramePaths('hover_projects', HOVER_PROJECTS_FRAME_COUNT));
+  const hoverProjectsLoopFrames = useRef(buildFramePaths('hover_projects_loop', HOVER_PROJECTS_LOOP_FRAME_COUNT));
+  const hoverContactFrames = useRef(buildFramePaths('hover_contact', HOVER_CONTACT_FRAME_COUNT));
+  const hoverContactLoopFrames = useRef(buildFramePaths('hover_contact_loop', HOVER_CONTACT_LOOP_FRAME_COUNT));
 
   const preloadedImages = useRef({}); // src -> Image mapping
   const lastDrawnFrameRef = useRef(null);
@@ -736,9 +746,13 @@ export default function Hero() {
   const [framesLoaded, setFramesLoaded] = useState(false);
   const framesLoadedRef = useRef(false);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
-  const animState = useRef('idle'); // 'idle' | 'scroll' | 'action'
+  const animState = useRef('idle'); // 'idle' | 'scroll' | 'action' | 'hover_projects' | 'hover_contact'
   const loopTimerRef = useRef(null);
   const loopIndexRef = useRef(0);
+
+  // Hover animation state
+  const hoverCancelRef = useRef(null); // increments on each new hover intent to cancel in-flight animations
+  const hoverFramesLoadedRef = useRef(false);
 
   const actionFramesLoaded = useRef(false); // Track whether action frames have been loaded
 
@@ -758,6 +772,56 @@ export default function Hero() {
       img.src = src;
       preloadedImages.current[src] = img;
     });
+  }, [isMobile]);
+
+  /* ── Preload hover frames at the LOWEST priority ── */
+  // Loaded only after idle+scroll frames are ready AND the page has settled.
+  // requestIdleCallback (+ fallback setTimeout) ensures zero impact on startup perf.
+  useEffect(() => {
+    if (isMobile) return; // Hover animations are desktop-only
+    if (hoverFramesLoadedRef.current) return;
+
+    const load = () => {
+      if (hoverFramesLoadedRef.current) return;
+      hoverFramesLoadedRef.current = true;
+
+      const allHoverFrames = [
+        ...hoverProjectsFrames.current,
+        ...hoverProjectsLoopFrames.current,
+        ...hoverContactFrames.current,
+        ...hoverContactLoopFrames.current,
+      ];
+
+      allHoverFrames.forEach((src) => {
+        if (preloadedImages.current[src]) return;
+        const img = new Image();
+        img.src = src;
+        preloadedImages.current[src] = img;
+      });
+    };
+
+    // Wait for the main frames to load first, then schedule as lowest priority
+    const scheduleLoad = () => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(load, { timeout: 5000 });
+      } else {
+        setTimeout(load, 5000); // Fallback: wait 5 s after mount
+      }
+    };
+
+    // Only start the idle-load after core frames are done
+    if (framesLoadedRef.current) {
+      scheduleLoad();
+    } else {
+      // Poll until core frames are ready, then schedule
+      const poll = setInterval(() => {
+        if (framesLoadedRef.current) {
+          clearInterval(poll);
+          scheduleLoad();
+        }
+      }, 500);
+      return () => clearInterval(poll);
+    }
   }, [isMobile]);
 
   /* ── Preload critical frames (idle + scroll only) ── */
@@ -946,6 +1010,7 @@ export default function Hero() {
               // In the middle — scroll-driven frames
               if (animState.current !== 'scroll') {
                 animState.current = 'scroll';
+                hoverCancelRef.current = {}; // Invalidate any in-flight hover animation
                 stopLoop();
               }
               const frameIndex = Math.min(
@@ -1187,6 +1252,85 @@ export default function Hero() {
     return () => window.removeEventListener('mousemove', handleMove);
   }, [isMobile]);
 
+  /* ── Hover animation helpers ── */
+
+  // Play frames[startIdx..endIdx] at fps, call onDone when finished.
+  // Stops automatically if hoverCancelRef.current changes (token mismatch).
+  const playFrameRange = useCallback((frames, startIdx, endIdx, fps, token, onDone) => {
+    let idx = startIdx;
+    const step = endIdx >= startIdx ? 1 : -1;
+    const frameDelay = 1000 / fps;
+
+    const tick = () => {
+      if (hoverCancelRef.current !== token) return; // Cancelled by a newer hover event
+      drawFrame(frames[idx]);
+      if (idx === endIdx) {
+        if (onDone) onDone();
+        return;
+      }
+      idx += step;
+      loopTimerRef.current = setTimeout(tick, frameDelay);
+    };
+
+    loopTimerRef.current = setTimeout(tick, frameDelay);
+  }, [drawFrame]);
+
+  // Main hover-in handler for a button ('projects' | 'contact')
+  const handleBtnHoverIn = useCallback((btn) => {
+    // Block hover during scroll — scroll animation always takes priority
+    if (isMobile || animState.current === 'scroll' || !hoverFramesLoadedRef.current) return;
+
+    // New token invalidates any in-flight animation
+    const token = {};
+    hoverCancelRef.current = token;
+
+    stopLoop();
+
+    const transFrames = btn === 'projects' ? hoverProjectsFrames.current : hoverContactFrames.current;
+    const loopFrames  = btn === 'projects' ? hoverProjectsLoopFrames.current : hoverContactLoopFrames.current;
+
+    animState.current = btn === 'projects' ? 'hover_projects' : 'hover_contact';
+
+    // Step 1: jump to frame 0 of the hover transition
+    drawFrame(transFrames[0]);
+
+    // Step 2: play transition forward frames[0] -> frames[last]
+    playFrameRange(transFrames, 0, transFrames.length - 1, HOVER_FPS, token, () => {
+      if (hoverCancelRef.current !== token) return;
+      // Step 3: start the loop at the end pose
+      startLoop(loopFrames, HOVER_LOOP_FPS);
+    });
+  }, [isMobile, stopLoop, drawFrame, playFrameRange, startLoop]);
+
+  // Main hover-out handler
+  const handleBtnHoverOut = useCallback((btn) => {
+    if (isMobile) return;
+    if (animState.current !== 'hover_projects' && animState.current !== 'hover_contact') return;
+
+    // New token invalidates any in-flight forward animation
+    const token = {};
+    hoverCancelRef.current = token;
+
+    stopLoop();
+
+    const transFrames = btn === 'projects' ? hoverProjectsFrames.current : hoverContactFrames.current;
+
+    // Find current frame position for a smooth reverse start
+    const currentSrc = lastDrawnFrameRef.current;
+    let reverseStart = transFrames.length - 1;
+    const idx = transFrames.indexOf(currentSrc);
+    if (idx !== -1) reverseStart = idx;
+
+    animState.current = 'idle';
+
+    // Step 2: play transition in reverse back to frame 0
+    playFrameRange(transFrames, reverseStart, 0, HOVER_FPS, token, () => {
+      if (hoverCancelRef.current !== token) return;
+      // Step 3: resume idle loop
+      startLoop(idleFrames.current, IDLE_FPS);
+    });
+  }, [isMobile, stopLoop, playFrameRange, startLoop]);
+
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
@@ -1236,10 +1380,20 @@ export default function Hero() {
           </Subtitle>
 
           <HeroActions>
-            <PrimaryBtn href="#projects" onClick={(e) => { e.preventDefault(); scrollTo('projects'); }}>
+            <PrimaryBtn
+              href="#projects"
+              onClick={(e) => { e.preventDefault(); scrollTo('projects'); }}
+              onMouseEnter={() => handleBtnHoverIn('projects')}
+              onMouseLeave={() => handleBtnHoverOut('projects')}
+            >
               {t('hero.viewWork')} →
             </PrimaryBtn>
-            <SecondaryBtn href="#contact" onClick={(e) => { e.preventDefault(); scrollTo('contact'); }}>
+            <SecondaryBtn
+              href="#contact"
+              onClick={(e) => { e.preventDefault(); scrollTo('contact'); }}
+              onMouseEnter={() => handleBtnHoverIn('contact')}
+              onMouseLeave={() => handleBtnHoverOut('contact')}
+            >
               {t('hero.getInTouch')}
             </SecondaryBtn>
           </HeroActions>

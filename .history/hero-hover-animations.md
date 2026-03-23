@@ -85,3 +85,28 @@ public/avatar/
 ## Related Files
 - `src/components/sections/Hero.js` — Composant principal à modifier
 - `.agent/workflows/process-avatar-video.md` — Workflow FFmpeg pour traiter les vidéos
+- `scripts/remove-hover-watermark.js` — Script Node.js pour supprimer le filigrane Veo.
+- `scripts/thin-hover-frames.js` — Script pour réduire le framerate (optimisation).
+
+---
+
+## 2026-03-23 - Implémentation des Hover Animations
+
+**Modified Files:**
+- `src/components/sections/Hero.js` - Ajout de la logique de chargement et de gestion d'état des 4 séquences d'animation hover.
+- `.agent/workflows/process-avatar-video.md` - Mise à jour de la documentation du workflow.
+
+**New Files (Scripts):**
+- `scripts/remove-hover-watermark.js` - Script in-place pour retirer le filigrane "Veo"
+- `scripts/thin-hover-frames.js` - Divise le nombre de frames par 2 pour la performance (96 au lieu de 192).
+
+**What Was Done:**
+- Extraction de 4 vidéos d'animation en PNG puis WebP (green screen supprimé).
+- Suppression du filigrane vidéo Veo pixel par pixel de façon propre en bas à droite de chaque frame WebP existante.
+- Chargement reporté ("lowest priority") des frames de hover via `requestIdleCallback` pour ne pas impacter le temps de chargement initial de la page ou les animations primaires.
+- Blocked the hover animations entirely when users are scrolling, passing priority back to the default scroll-driven playback.
+- Optimization des frames : rééchantillonnage de la vidéo source à 9 FPS via FFmpeg pour obtenir exactement 72 images par animation. Les tableaux font 72 images chacun tout en conservant 24 FPS (vitesse x2.6 au survol, 3 secondes d'animation).
+
+**Notes:**
+- `hoverCancelRef` est utilisé comme token pour invalider/interrompre les requêtes frame-par-frame en cas de changement rapide de bouton ou de reprise du scroll.
+- Les animations de survol sont désactivées sur mobile (`isMobile` check).

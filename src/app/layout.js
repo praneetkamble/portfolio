@@ -25,24 +25,14 @@ export default function RootLayout({ children }) {
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 {/*
-                  Non-blocking font load:
-                  rel="preload" + onLoad swap avoids render-blocking.
-                  The browser fetches the font CSS in parallel with HTML parsing
-                  and swaps it to a stylesheet once ready — no FCP/LCP delay.
+                  Next.js App Router automatically optimizes Google Fonts at build time.
+                  Using raw `<link rel="stylesheet">` allows Next.js to inline the CSS,
+                  completely eliminating FCP/LCP network delays natively.
                 */}
                 <link
-                    rel="preload"
-                    as="style"
+                    rel="stylesheet"
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-                    onLoad="this.onload=null;this.rel='stylesheet'"
                 />
-                {/* Fallback for JS-disabled browsers */}
-                <noscript>
-                    <link
-                        rel="stylesheet"
-                        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-                    />
-                </noscript>
             </head>
             <body>
                 <StyledComponentsRegistry>
