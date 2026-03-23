@@ -13,13 +13,16 @@ const GlobalStyles = createGlobalStyle`
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   body {
     font-family: ${({ theme }) => theme.fonts.body};
     background-color: ${({ theme }) => theme.colors.bg};
     color: ${({ theme }) => theme.colors.text};
-    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
     transition: background-color 0.4s ease, color 0.4s ease;
     line-height: 1.6;
   }

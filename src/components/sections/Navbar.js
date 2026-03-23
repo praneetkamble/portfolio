@@ -219,7 +219,7 @@ const MobileOverlay = styled.div`
     opacity: ${({ $open }) => ($open ? 1 : 0)};
     pointer-events: ${({ $open }) => ($open ? 'all' : 'none')};
     transition: opacity 0.3s ease;
-    z-index: 1000;
+    z-index: 999;
   }
 `;
 

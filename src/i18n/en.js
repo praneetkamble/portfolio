@@ -44,7 +44,7 @@ export const en = {
     // Skills
     skills: {
     label: "EXPERTISE",
-    title: "What I Do",
+    title: "My Skills",
     description: "Architecting modern digital experiences with a focus on clean code, scalable infrastructure, and pixel-perfect design.",
     frontend: "Frontend Engineering",
     frontendDesc: "Crafting pixel-perfect, accessible, and highly interactive user interfaces. I turn complex logic into fluid, natural experiences.",

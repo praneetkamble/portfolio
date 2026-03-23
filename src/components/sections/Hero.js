@@ -516,7 +516,7 @@ const SkillTitle = styled.h3`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) translateZ(0);
-  width: 100vw;
+  width: 100%;
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
   font-family: ${({ theme }) => theme.fonts.heading};
@@ -761,18 +761,23 @@ export default function Hero() {
     if (actionFramesLoaded.current) return; // Only load once
     actionFramesLoaded.current = true;
 
-    // On mobile, only load every other frame (same half-resolution strategy as other sequences)
-    const frames = isMobile
-      ? actionFrames.current.filter((_, i) => i % 2 === 0)
-      : actionFrames.current;
+    // Load all frames on both mobile and desktop to ensure smooth 30fps finish
+    const frames = actionFrames.current;
 
-    frames.forEach((src) => {
-      if (preloadedImages.current[src]) return; // Already cached
-      const img = new Image();
-      img.src = src;
-      preloadedImages.current[src] = img;
+    // Stagger downloading to avoid freezing the main thread
+    frames.forEach((src, idx) => {
+      setTimeout(() => {
+        if (preloadedImages.current[src]) return; // Already cached
+        const img = new Image();
+        img.src = src;
+        
+        // Use decode() to shift image parsing off the main thread (fixes mobile freezing)
+        img.decode()
+          .then(() => { preloadedImages.current[src] = img; })
+          .catch(() => { preloadedImages.current[src] = img; }); // Fallback for unsupported browsers
+      }, idx * 40); // 40ms stagger ensures smooth playback while scrolling
     });
-  }, [isMobile]);
+  }, []);
 
   /* ── Preload hover frames at the LOWEST priority ── */
   // Loaded only after idle+scroll frames are ready AND the page has settled.
@@ -850,18 +855,27 @@ export default function Hero() {
 
     // Phase 2: Background Loader for full FPS upgrade
     const loadMissingFrames = () => {
+      // Removing the `if (isMobile) return;` hack helps give 30fps full experience.
+      // We will prevent locking by using background `img.decode()` API.
       const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse/i.test(navigator.userAgent);
       if (isBot || missingFrames.length === 0) return;
 
-      // Wait 1 second after core 15fps boots to let the CPU and UI settle
+      // Wait 1.5 seconds after core boots to let the CPU and UI settle
       setTimeout(() => {
-        missingFrames.forEach((src) => {
-          const img = new Image();
-          img.src = src;
-          // As soon as this finishes caching, drawFrame auto-upgrades!
-          preloadedImages.current[src] = img;
+        // Instead of downloading all frames synchronously, stagger them
+        // and decode them off the main thread (fixes iOS/Android stuttering).
+        missingFrames.forEach((src, idx) => {
+          setTimeout(() => {
+            const img = new Image();
+            img.src = src;
+            
+            // `decode()` forces parsing into WebWorkers/background thread!
+            img.decode()
+              .then(() => { preloadedImages.current[src] = img; })
+              .catch(() => { preloadedImages.current[src] = img; }); // Fallback 
+          }, idx * 60); // Stagger by 60ms gap per image
         });
-      }, 1000);
+      }, 1500);
     };
 
     // Check loading progress

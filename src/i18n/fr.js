@@ -40,7 +40,7 @@ export const fr = {
 
     skills: {
         label: 'EXPERTISE',
-        title: 'Ce que je fais',
+        title: 'Mes compétences',
         description: 'Architecturer des expériences numériques modernes en mettant l\'accent sur un code propre, une infrastructure évolutive et un design au pixel près.',
         frontend: 'Ingénierie Frontend',
         frontendDesc: 'Créer des interfaces utilisateur ultra-précises, accessibles et hautement interactives. Je transforme une logique complexe en expériences fluides.',

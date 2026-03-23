@@ -7,7 +7,7 @@ import useIsMobile from '@/lib/useIsMobile';
 
 const AboutSection = styled.section`
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   min-height: 800px;
   background-color: transparent;
