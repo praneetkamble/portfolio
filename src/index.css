@@ -27,3 +27,13 @@ body {
   background: rgba(0, 255, 102, 0.28);
   color: #ffffff;
 }
+
+@keyframes bufferSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(620%);
+  }
+}
