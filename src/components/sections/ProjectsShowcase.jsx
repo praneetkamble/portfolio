@@ -14,6 +14,8 @@ const projects = [
     stack: ['React', 'Tailwind', 'Framer Motion'],
     stats: ['Animated hero', 'Mobile ready', 'Fast Vite build'],
     accent: '#00FF66',
+    github: 'https://github.com/praneetkamble',
+    live: 'https://praneetkamble.github.io',
   },
   {
     id: 'ai-study-planner',
@@ -26,6 +28,8 @@ const projects = [
     stack: ['Python', 'React', 'FastAPI'],
     stats: ['Smart schedules', 'Progress view', 'Priority logic'],
     accent: '#38BDF8',
+    github: 'https://github.com/praneetkamble',
+    live: '',
   },
   {
     id: 'campus-hub',
@@ -38,6 +42,8 @@ const projects = [
     stack: ['Node.js', 'Express', 'MongoDB'],
     stats: ['Event feeds', 'Club pages', 'Role access'],
     accent: '#A3E635',
+    github: 'https://github.com/praneetkamble',
+    live: '',
   },
   {
     id: 'inventory-console',
@@ -50,18 +56,22 @@ const projects = [
     stack: ['Java', 'MySQL', 'Charts'],
     stats: ['Live tables', 'Low-stock alerts', 'Search tools'],
     accent: '#FACC15',
+    github: 'https://github.com/praneetkamble',
+    live: '',
   },
   {
-    id: 'three-lab',
+    id: 'redmagic-showcase',
     channel: '05',
-    title: '3D Product Lab',
-    category: 'Interactive showcase',
-    status: 'Concept',
+    title: 'REDMAGIC 3D Showcase',
+    category: '3D product lab',
+    status: 'Live build',
     description:
-      'A browser-based 3D product scene with interactive lighting, orbit controls, and polished presentation states.',
-    stack: ['Three.js', 'React', 'WebGL'],
-    stats: ['3D controls', 'Lighting rig', 'Scene states'],
-    accent: '#22D3EE',
+      'A hardware-accelerated 3D product showcase for the REDMAGIC Titan 16 Pro, featuring a custom haptic synth, fan simulation, and custom cursor.',
+    stack: ['Three.js', 'React', 'Web Audio API'],
+    stats: ['3D orbit model', 'Synth sweeps', '60fps cursor'],
+    accent: '#FF003C',
+    github: 'https://github.com/praneetkamble/Redmagic_clone',
+    live: 'https://praneetkamble.github.io/Redmagic_clone/',
   },
 ];
 
@@ -106,11 +116,35 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
       >
           <div className="grid h-full grid-cols-[minmax(0,1fr)_116px] grid-rows-[auto_minmax(0,1fr)_34px] gap-1.5">
             <header className="project-card-depth max-w-[220px] space-y-0.5">
-              <div className="mb-0.5 flex items-center gap-1.5 text-[9px] font-semibold uppercase text-white/55">
-                <span className="border border-[var(--project-accent)]/60 bg-[var(--project-accent)]/12 px-1.5 py-0.5 text-[var(--project-accent)] text-[8.5px]">
-                  {project.status}
-                </span>
-                <span>{project.category}</span>
+              <div className="mb-0.5 flex items-center justify-between text-[9.5px] font-semibold uppercase text-white/55">
+                <div className="flex items-center gap-1.5">
+                  <span className="border border-[var(--project-accent)]/60 bg-[var(--project-accent)]/12 px-1.5 py-0.5 text-[var(--project-accent)] text-[8.5px]">
+                    {project.status}
+                  </span>
+                  <span>{project.category}</span>
+                </div>
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/60 hover:text-[var(--project-accent)] transition-colors p-0.5"
+                    >
+                      <FiGithub size={10} />
+                    </a>
+                  )}
+                  {project.live && (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/60 hover:text-[var(--project-accent)] transition-colors p-0.5"
+                    >
+                      <FiArrowUpRight size={11} />
+                    </a>
+                  )}
+                </div>
               </div>
               <h2 className={`${titleSizeClass} max-w-[220px] font-black uppercase leading-tight tracking-normal text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.18)]`}>
                 {project.title}
@@ -340,8 +374,26 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                 </div>
 
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase text-white/52">
-                  <FiGithub />
-                  <FiArrowUpRight />
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[var(--project-accent)] transition-colors p-1"
+                    >
+                      <FiGithub size={14} />
+                    </a>
+                  )}
+                  {project.live && (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[var(--project-accent)] transition-colors p-1"
+                    >
+                      <FiArrowUpRight size={16} />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
