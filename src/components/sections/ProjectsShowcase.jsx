@@ -44,7 +44,7 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         >
           <iframe
             src={project.live}
-            className="border-0"
+            className="border-0 animate-fade-in"
             title={project.title}
             style={{
               width: '300%',
@@ -52,10 +52,9 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               transform: 'scale(0.33333)',
               transformOrigin: 'top left',
               pointerEvents: 'none',
-              opacity: 0.85
+              opacity: 1
             }}
           />
-          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </a>
       )}
 
@@ -75,13 +74,14 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         )}
       </AnimatePresence>
 
-      <motion.article
-        key={project.id}
-        initial={false}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px) brightness(1)' }}
-        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-        className="project-depth-article relative z-10 h-full pl-3 pr-3 pb-3 pt-3"
-      >
+      {!project.live && (
+        <motion.article
+          key={project.id}
+          initial={false}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px) brightness(1)' }}
+          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          className="project-depth-article relative z-10 h-full pl-3 pr-3 pb-3 pt-3"
+        >
           <div className="grid h-full grid-cols-[minmax(0,1fr)_116px] grid-rows-[auto_minmax(0,1fr)_34px] gap-1.5">
             <header className="project-card-depth max-w-[220px] space-y-0.5">
               <div className="mb-0.5 flex items-center justify-between text-[9.5px] font-semibold uppercase text-white/55">
@@ -242,7 +242,8 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               </div>
             </footer>
           </div>
-      </motion.article>
+        </motion.article>
+      )}
     </div>
   );
 }
@@ -265,7 +266,7 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         >
           <iframe
             src={project.live}
-            className="border-0"
+            className="border-0 animate-fade-in"
             title={project.title}
             style={{
               width: '200%',
@@ -273,10 +274,9 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               transform: 'scale(0.5)',
               transformOrigin: 'top left',
               pointerEvents: 'none',
-              opacity: 0.7
+              opacity: 1
             }}
           />
-          <div className="absolute inset-0 bg-black/65 pointer-events-none" />
         </a>
       )}
 
@@ -295,108 +295,110 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5">
-        <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase text-[#9BFFBD] sm:text-xs">
-          <span className="flex items-center gap-2">
-            <FiRadio className="text-[var(--project-accent)]" />
-            CH {project.channel}
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white/65">
-            Scroll signal
-          </span>
-        </div>
+      {!project.live && (
+        <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5">
+          <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase text-[#9BFFBD] sm:text-xs">
+            <span className="flex items-center gap-2">
+              <FiRadio className="text-[var(--project-accent)]" />
+              CH {project.channel}
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white/65">
+              Scroll signal
+            </span>
+          </div>
 
-        <motion.article
-          key={project.id}
-          initial={false}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px) brightness(1)' }}
-          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-          className="flex min-h-0 flex-1 flex-col"
-        >
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-[var(--project-accent)]/45 bg-[var(--project-accent)]/10 px-3 py-1 text-[10px] font-semibold uppercase text-white sm:text-xs">
-                {project.status}
-              </span>
-              <span className="text-[10px] font-medium uppercase text-white/45 sm:text-xs">
-                {project.category}
-              </span>
-            </div>
-
-            <h2 className="text-[clamp(1.45rem,7vw,2rem)] font-bold leading-tight text-white sm:text-3xl">
-              {project.title}
-            </h2>
-            <p className="mt-2 max-w-prose text-xs leading-relaxed text-white/68 sm:text-sm">
-              {project.description}
-            </p>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              {project.stack.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[10px] font-medium text-white/78 sm:text-xs"
-                >
-                  {item}
+          <motion.article
+            key={project.id}
+            initial={false}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px) brightness(1)' }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[var(--project-accent)]/45 bg-[var(--project-accent)]/10 px-3 py-1 text-[10px] font-semibold uppercase text-white sm:text-xs">
+                  {project.status}
                 </span>
-              ))}
-            </div>
-
-            {!project.live && (
-              <div className="mt-auto pt-3">
-                <div className="grid grid-cols-3 gap-1.5">
-                  {project.stats.map((stat) => (
-                    <div key={stat} className="min-h-10 border border-white/10 bg-white/[0.035] p-1.5 sm:p-2">
-                      <FiZap className="mb-1 text-[var(--project-accent)]" />
-                      <p className="text-[8px] font-semibold uppercase leading-snug text-white/70 sm:text-[10px]">
-                        {stat}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <span className="text-[10px] font-medium uppercase text-white/45 sm:text-xs">
+                  {project.category}
+                </span>
               </div>
-            )}
 
-            <div className="mt-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5" aria-label="Project channels">
-                  {projects.map((item, index) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => onJump(index)}
-                      className={`h-2.5 rounded-full transition-all ${
-                        index === activeIndex
-                          ? 'w-8 bg-[var(--project-accent)] shadow-[0_0_14px_var(--project-accent)]'
-                          : 'w-2.5 bg-white/24 hover:bg-white/45'
-                      }`}
-                      aria-label={`Show project channel ${item.channel}`}
-                    />
-                  ))}
-                </div>
+              <h2 className="text-[clamp(1.45rem,7vw,2rem)] font-bold leading-tight text-white sm:text-3xl">
+                {project.title}
+              </h2>
+              <p className="mt-2 max-w-prose text-xs leading-relaxed text-white/68 sm:text-sm">
+                {project.description}
+              </p>
 
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase text-white/52">
-                  {project.github && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-[var(--project-accent)] transition-colors p-1"
-                    >
-                      <FiGithub size={14} />
-                    </a>
-                  )}
-                  {project.live && (
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-[var(--project-accent)] transition-colors p-1"
-                    >
-                      <FiArrowUpRight size={16} />
-                    </a>
-                  )}
-                </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.stack.map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[10px] font-medium text-white/78 sm:text-xs"
+                  >
+                    {item}
+                  </span>
+                ))}
               </div>
-        </motion.article>
-      </div>
+
+              {!project.live && (
+                <div className="mt-auto pt-3">
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {project.stats.map((stat) => (
+                      <div key={stat} className="min-h-10 border border-white/10 bg-white/[0.035] p-1.5 sm:p-2">
+                        <FiZap className="mb-1 text-[var(--project-accent)]" />
+                        <p className="text-[8px] font-semibold uppercase leading-snug text-white/70 sm:text-[10px]">
+                          {stat}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5" aria-label="Project channels">
+                    {projects.map((item, index) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onJump(index)}
+                        className={`h-2.5 rounded-full transition-all ${
+                          index === activeIndex
+                            ? 'w-8 bg-[var(--project-accent)] shadow-[0_0_14px_var(--project-accent)]'
+                            : 'w-2.5 bg-white/24 hover:bg-white/45'
+                        }`}
+                        aria-label={`Show project channel ${item.channel}`}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase text-white/52">
+                    {project.github && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-[var(--project-accent)] transition-colors p-1"
+                      >
+                        <FiGithub size={14} />
+                      </a>
+                    )}
+                    {project.live && (
+                      <a
+                        href={project.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-[var(--project-accent)] transition-colors p-1"
+                      >
+                        <FiArrowUpRight size={16} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+          </motion.article>
+        </div>
+      )}
     </div>
   );
 }
