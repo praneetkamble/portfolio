@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import {
   FaPython,
   FaReact,
@@ -33,8 +33,6 @@ const stats = [
 
 export default function FuturisticPortfolio() {
   const homeRef = useRef(null);
-  const [homeTilt, setHomeTilt] = useState({ x: 0, y: 0, px: 0, py: 0 });
-
   const handleHomePointerMove = (event) => {
     if (!homeRef.current || event.pointerType === 'touch') {
       return;
@@ -44,15 +42,24 @@ export default function FuturisticPortfolio() {
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
 
-    setHomeTilt({
-      x: Number((-y * 3.4).toFixed(2)),
-      y: Number((x * 4.6).toFixed(2)),
-      px: Number((x * 16).toFixed(2)),
-      py: Number((y * 10).toFixed(2)),
-    });
+    const tx = (-y * 3.4).toFixed(2);
+    const ty = (x * 4.6).toFixed(2);
+    const px = (x * 16).toFixed(2);
+    const py = (y * 10).toFixed(2);
+
+    homeRef.current.style.setProperty('--home-tilt-x', `${tx}deg`);
+    homeRef.current.style.setProperty('--home-tilt-y', `${ty}deg`);
+    homeRef.current.style.setProperty('--home-parallax-x', `${px}px`);
+    homeRef.current.style.setProperty('--home-parallax-y', `${py}px`);
   };
 
-  const resetHomeTilt = () => setHomeTilt({ x: 0, y: 0, px: 0, py: 0 });
+  const resetHomeTilt = () => {
+    if (!homeRef.current) return;
+    homeRef.current.style.setProperty('--home-tilt-x', '0deg');
+    homeRef.current.style.setProperty('--home-tilt-y', '0deg');
+    homeRef.current.style.setProperty('--home-parallax-x', '0px');
+    homeRef.current.style.setProperty('--home-parallax-y', '0px');
+  };
 
   return (
     <main className="relative min-h-[100svh] bg-[#050505] font-sans text-white">
@@ -68,7 +75,7 @@ export default function FuturisticPortfolio() {
         <nav className="mx-auto flex max-w-[1400px] items-center justify-between rounded-xl border border-white/10 bg-[#050505]/70 px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:rounded-2xl sm:px-6 sm:py-4">
           <a href="#home" className="flex items-center gap-2 sm:gap-3" aria-label="Praneet home">
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt="BK Logo"
               className="h-8 w-auto object-contain mix-blend-screen drop-shadow-[0_0_15px_rgba(0,255,102,0.3)] sm:h-10"
             />
@@ -105,10 +112,10 @@ export default function FuturisticPortfolio() {
         onPointerLeave={resetHomeTilt}
         className="home-scene relative z-10 mx-auto grid min-h-[100svh] max-w-[1400px] items-center gap-4 overflow-visible px-4 pb-10 pt-24 sm:gap-7 sm:px-6 sm:pb-12 sm:pt-[7.5rem] lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-8 lg:overflow-hidden lg:pb-6 lg:pt-[6.5rem]"
         style={{
-          '--home-tilt-x': `${homeTilt.x}deg`,
-          '--home-tilt-y': `${homeTilt.y}deg`,
-          '--home-parallax-x': `${homeTilt.px}px`,
-          '--home-parallax-y': `${homeTilt.py}px`,
+          '--home-tilt-x': '0deg',
+          '--home-tilt-y': '0deg',
+          '--home-parallax-x': '0px',
+          '--home-parallax-y': '0px',
         }}
       >
         <div className="home-depth-grid pointer-events-none absolute inset-0 z-0" />
@@ -201,7 +208,7 @@ export default function FuturisticPortfolio() {
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             >
               <img
-                src="/avatar.png"
+                src="/avatar.webp"
                 alt="Praneet avatar"
                 className="home-avatar-image relative z-20 h-full w-full object-contain drop-shadow-[0_0_50px_rgba(0,255,102,0.1)]"
                 onError={(event) => {

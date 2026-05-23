@@ -260,7 +260,7 @@ function ContactForm({ className = '' }) {
 
 export default function ContactTerminal() {
   const sectionRef = useRef(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0, px: 0, py: 0 });
+
 
   const handlePointerMove = (event) => {
     if (!sectionRef.current || event.pointerType === 'touch') {
@@ -271,15 +271,24 @@ export default function ContactTerminal() {
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
 
-    setTilt({
-      x: Number((-y * 4.5).toFixed(2)),
-      y: Number((x * 6).toFixed(2)),
-      px: Number((x * 18).toFixed(2)),
-      py: Number((y * 12).toFixed(2)),
-    });
+    const tx = (-y * 4.5).toFixed(2);
+    const ty = (x * 6).toFixed(2);
+    const px = (x * 18).toFixed(2);
+    const py = (y * 12).toFixed(2);
+
+    sectionRef.current.style.setProperty('--contact-tilt-x', `${tx}deg`);
+    sectionRef.current.style.setProperty('--contact-tilt-y', `${ty}deg`);
+    sectionRef.current.style.setProperty('--contact-parallax-x', `${px}px`);
+    sectionRef.current.style.setProperty('--contact-parallax-y', `${py}px`);
   };
 
-  const resetTilt = () => setTilt({ x: 0, y: 0, px: 0, py: 0 });
+  const resetTilt = () => {
+    if (!sectionRef.current) return;
+    sectionRef.current.style.setProperty('--contact-tilt-x', '0deg');
+    sectionRef.current.style.setProperty('--contact-tilt-y', '0deg');
+    sectionRef.current.style.setProperty('--contact-parallax-x', '0px');
+    sectionRef.current.style.setProperty('--contact-parallax-y', '0px');
+  };
 
   return (
     <section
@@ -289,15 +298,15 @@ export default function ContactTerminal() {
       onPointerLeave={resetTilt}
       className="relative min-h-[100svh] overflow-hidden bg-[#020403] text-white"
       style={{
-        '--contact-tilt-x': `${tilt.x}deg`,
-        '--contact-tilt-y': `${tilt.y}deg`,
-        '--contact-parallax-x': `${tilt.px}px`,
-        '--contact-parallax-y': `${tilt.py}px`,
+        '--contact-tilt-x': '0deg',
+        '--contact-tilt-y': '0deg',
+        '--contact-parallax-x': '0px',
+        '--contact-parallax-y': '0px',
       }}
     >
       <div className="relative hidden h-[100svh] w-full overflow-hidden bg-black lg:block">
         <img
-          src="/info_backdrop.png"
+          src="/info_backdrop.webp"
           alt=""
           className="absolute inset-0 h-full w-full scale-105 object-cover object-center opacity-30 blur-sm"
           loading="eager"
@@ -305,7 +314,7 @@ export default function ContactTerminal() {
         />
         <div
           className="contact-scene relative left-1/2 top-1/2 z-10 aspect-[1024/572] w-full max-w-[179svh] -translate-x-1/2 -translate-y-1/2 bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/info_backdrop.png)' }}
+          style={{ backgroundImage: 'url(/info_backdrop.webp)' }}
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 z-[12] h-[90px] bg-gradient-to-b from-[#020403] via-[#020403]/95 to-[#020403]/12" />
           <div className="pointer-events-none absolute inset-0 z-[11] bg-[radial-gradient(circle_at_72%_36%,rgba(0,255,153,0.08),transparent_22%),linear-gradient(90deg,rgba(0,0,0,0.2),transparent_42%,rgba(0,0,0,0.22))]" />
@@ -353,7 +362,7 @@ export default function ContactTerminal() {
           </motion.div>
           <div className="contact-avatar-frame pointer-events-none absolute right-[3.6%] top-[13.8%] z-30 h-[76%] w-[28.4%] overflow-visible">
             <img
-              src="/info_avatar.png"
+              src="/info_avatar.webp"
               alt="Praneet contact avatar"
               className="contact-avatar h-full w-full max-w-none object-cover object-[100%_48%] mix-blend-screen drop-shadow-[0_0_34px_rgba(0,255,102,0.22)]"
             />
@@ -363,7 +372,7 @@ export default function ContactTerminal() {
 
       <div className="relative min-h-[100svh] overflow-hidden px-4 pb-12 pt-28 lg:hidden">
         <img
-          src="/info_backdrop.png"
+          src="/info_backdrop.webp"
           alt=""
           className="absolute inset-x-0 top-0 mx-auto h-auto max-h-[100svh] w-full object-contain object-top opacity-70"
           loading="eager"
@@ -371,7 +380,7 @@ export default function ContactTerminal() {
         />
         <div className="absolute inset-0 bg-[#020403]/72" />
         <img
-          src="/info_avatar.png"
+          src="/info_avatar.webp"
           alt=""
           className="pointer-events-none absolute bottom-0 right-[-62vw] z-[1] h-[76vh] w-auto max-w-none object-contain opacity-80 mix-blend-screen sm:right-[-34vw]"
         />

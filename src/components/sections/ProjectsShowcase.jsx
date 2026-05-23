@@ -357,7 +357,7 @@ export default function ProjectsShowcase() {
   const tuningTimerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTuning, setIsTuning] = useState(false);
-  const [projectTilt, setProjectTilt] = useState({ x: 0, y: 0, px: 0, py: 0 });
+
   const [scale, setScale] = useState(1);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -365,22 +365,31 @@ export default function ProjectsShowcase() {
   });
 
   const handleProjectPointerMove = (event) => {
-    if (event.pointerType === 'touch') {
+    if (!sectionRef.current || event.pointerType === 'touch') {
       return;
     }
 
     const x = event.clientX / window.innerWidth - 0.5;
     const y = event.clientY / window.innerHeight - 0.5;
 
-    setProjectTilt({
-      x: Number((-y * 4).toFixed(2)),
-      y: Number((x * 6).toFixed(2)),
-      px: Number((x * 20).toFixed(2)),
-      py: Number((y * 14).toFixed(2)),
-    });
+    const tx = (-y * 4).toFixed(2);
+    const ty = (x * 6).toFixed(2);
+    const px = (x * 20).toFixed(2);
+    const py = (y * 14).toFixed(2);
+
+    sectionRef.current.style.setProperty('--project-tilt-x', `${tx}deg`);
+    sectionRef.current.style.setProperty('--project-tilt-y', `${ty}deg`);
+    sectionRef.current.style.setProperty('--project-parallax-x', `${px}px`);
+    sectionRef.current.style.setProperty('--project-parallax-y', `${py}px`);
   };
 
-  const resetProjectTilt = () => setProjectTilt({ x: 0, y: 0, px: 0, py: 0 });
+  const resetProjectTilt = () => {
+    if (!sectionRef.current) return;
+    sectionRef.current.style.setProperty('--project-tilt-x', '0deg');
+    sectionRef.current.style.setProperty('--project-tilt-y', '0deg');
+    sectionRef.current.style.setProperty('--project-parallax-x', '0px');
+    sectionRef.current.style.setProperty('--project-parallax-y', '0px');
+  };
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
     const nextIndex = Math.min(
@@ -448,16 +457,16 @@ export default function ProjectsShowcase() {
       className="project-scene relative bg-[#020403] text-white"
       style={{
         height: `${100 + (projects.length - 1) * 78}svh`,
-        '--project-tilt-x': `${projectTilt.x}deg`,
-        '--project-tilt-y': `${projectTilt.y}deg`,
-        '--project-parallax-x': `${projectTilt.px}px`,
-        '--project-parallax-y': `${projectTilt.py}px`,
+        '--project-tilt-x': '0deg',
+        '--project-tilt-y': '0deg',
+        '--project-parallax-x': '0px',
+        '--project-parallax-y': '0px',
       }}
     >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         <div className="relative hidden h-[100svh] w-full overflow-hidden bg-[#020806] lg:block">
           <img
-            src="/backdrop1.png"
+            src="/backdrop1.webp"
             alt=""
             className="absolute inset-0 h-full w-full scale-105 object-cover object-center opacity-35 blur-sm"
             loading="eager"
@@ -473,7 +482,7 @@ export default function ProjectsShowcase() {
             }}
           >
             <img
-              src="/backdrop1.png"
+              src="/backdrop1.webp"
               alt=""
               className="project-backdrop-image absolute inset-0 h-full w-full object-contain object-center"
               loading="eager"
@@ -488,7 +497,7 @@ export default function ProjectsShowcase() {
               <div className="absolute bottom-[2%] left-[18%] h-[13%] w-[58%] rounded-[100%] border border-[#8cff00]/45 bg-[#00ff66]/10 shadow-[0_0_34px_rgba(0,255,102,0.48),inset_0_0_22px_rgba(34,211,238,0.14)] blur-[0.5px]" />
               <div className="absolute bottom-[4%] left-[27%] h-[8%] w-[40%] rounded-[100%] bg-[#00ff66]/18 blur-lg" />
               <img
-                src="/project_avatar.png"
+                src="/project_avatar.webp"
                 alt="Praneet avatar presenting projects"
                 className="project-avatar-image relative z-10 h-full w-full object-contain object-bottom"
                 loading="eager"
@@ -509,7 +518,7 @@ export default function ProjectsShowcase() {
 
         <div className="relative h-[100svh] overflow-hidden bg-[#020806] lg:hidden">
           <img
-            src="/backdrop1.png"
+            src="/backdrop1.webp"
             alt=""
             className="absolute inset-0 h-full w-full object-cover object-center opacity-65"
             loading="eager"
@@ -517,7 +526,7 @@ export default function ProjectsShowcase() {
           />
           <div className="absolute inset-0 bg-black/50" />
           <img
-            src="/project_avatar.png"
+            src="/project_avatar.webp"
             alt=""
             className="project-mobile-avatar pointer-events-none absolute right-[-18vw] top-[48vh] z-[3] h-[58vh] w-auto max-w-none object-contain opacity-90 sm:right-[-8vw]"
             loading="eager"
