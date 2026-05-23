@@ -71,6 +71,29 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         </a>
       )}
 
+      {project.live && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-end justify-between gap-3 border border-[var(--project-accent)]/40 bg-black/72 px-3 py-2 shadow-[0_0_22px_rgba(255,0,60,0.18),inset_0_0_18px_rgba(255,0,60,0.08)] backdrop-blur-md">
+          <div className="min-w-0">
+            <p className="font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-[var(--project-accent)]">
+              Redirect link
+            </p>
+            <p className="mt-0.5 truncate font-mono text-[8px] text-white/62">
+              {project.live}?buffer=portfolio
+            </p>
+          </div>
+          <a
+            href={getBufferedLiveUrl(project.live)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => openBufferedLive(event, project.live)}
+            className="pointer-events-auto inline-flex shrink-0 items-center gap-1.5 border border-[var(--project-accent)]/55 bg-[var(--project-accent)]/12 px-2.5 py-1.5 font-mono text-[8.5px] font-black uppercase tracking-[0.16em] text-white transition-colors hover:bg-[var(--project-accent)]/24"
+          >
+            Launch
+            <FiArrowUpRight size={11} />
+          </a>
+        </div>
+      )}
+
       <AnimatePresence>
         {isTuning && (
           <motion.div
@@ -293,6 +316,30 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
             }}
           />
         </a>
+      )}
+
+      {project.live && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 border border-[var(--project-accent)]/42 bg-black/78 p-3 shadow-[0_0_24px_rgba(255,0,60,0.2),inset_0_0_20px_rgba(255,0,60,0.08)] backdrop-blur-md">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--project-accent)]">
+              Redirect link
+            </span>
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--project-accent)] shadow-[0_0_10px_var(--project-accent)]" />
+          </div>
+          <p className="mb-2 truncate font-mono text-[9px] text-white/62">
+            {project.live}?buffer=portfolio
+          </p>
+          <a
+            href={getBufferedLiveUrl(project.live)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => openBufferedLive(event, project.live)}
+            className="pointer-events-auto flex items-center justify-center gap-2 border border-[var(--project-accent)]/60 bg-[var(--project-accent)]/14 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-[var(--project-accent)]/25"
+          >
+            Launch Redmagic
+            <FiArrowUpRight size={13} />
+          </a>
+        </div>
       )}
 
       <AnimatePresence>
