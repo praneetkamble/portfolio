@@ -4,22 +4,8 @@ import { FiArrowUpRight, FiGithub, FiRadio, FiZap } from 'react-icons/fi';
 
 const projects = [
   {
-    id: 'neon-portfolio',
-    channel: '01',
-    title: 'Neon Portfolio Interface',
-    category: 'Personal brand system',
-    status: 'Live build',
-    description:
-      'A cinematic portfolio experience with animated skill orbits, responsive sections, and a dark futuristic visual system.',
-    stack: ['React', 'Tailwind', 'Framer Motion'],
-    stats: ['Animated hero', 'Mobile ready', 'Fast Vite build'],
-    accent: '#00FF66',
-    github: 'https://github.com/praneetkamble',
-    live: 'https://praneetkamble.github.io',
-  },
-  {
     id: 'redmagic-showcase',
-    channel: '02',
+    channel: '01',
     title: 'REDMAGIC 3D Showcase',
     category: '3D product lab',
     status: 'Live build',
@@ -50,7 +36,12 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
       <div className="pointer-events-none absolute inset-y-0 right-0 w-[24%] bg-gradient-to-r from-transparent via-[#03110f]/22 to-[#03110f]/30" />
 
       {project.live && (
-        <div className="absolute inset-0 z-0 pointer-events-auto overflow-hidden">
+        <a 
+          href={project.live}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 z-0 pointer-events-auto overflow-hidden block cursor-pointer"
+        >
           <iframe
             src={project.live}
             className="border-0"
@@ -60,12 +51,12 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               height: '300%',
               transform: 'scale(0.33333)',
               transformOrigin: 'top left',
-              pointerEvents: 'auto',
+              pointerEvents: 'none',
               opacity: 0.85
             }}
           />
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
-        </div>
+        </a>
       )}
 
       <AnimatePresence>
@@ -266,7 +257,12 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
       <div className="pointer-events-none absolute inset-0 opacity-[0.2] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:100%_5px]" />
 
       {project.live && (
-        <div className="absolute inset-0 z-0 pointer-events-auto overflow-hidden">
+        <a 
+          href={project.live}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 z-0 pointer-events-auto overflow-hidden block cursor-pointer"
+        >
           <iframe
             src={project.live}
             className="border-0"
@@ -276,12 +272,12 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               height: '200%',
               transform: 'scale(0.5)',
               transformOrigin: 'top left',
-              pointerEvents: 'auto',
+              pointerEvents: 'none',
               opacity: 0.7
             }}
           />
           <div className="absolute inset-0 bg-black/65 pointer-events-none" />
-        </div>
+        </a>
       )}
 
       <AnimatePresence>
