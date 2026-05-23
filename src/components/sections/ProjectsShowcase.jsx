@@ -19,6 +19,18 @@ const projects = [
   },
 ];
 
+const getBufferedLiveUrl = (url) => {
+  const target = new URL(url);
+  target.searchParams.set('buffer', 'portfolio');
+  target.searchParams.set('launch', Date.now().toString());
+  return target.toString();
+};
+
+const openBufferedLive = (event, url) => {
+  event.preventDefault();
+  window.open(getBufferedLiveUrl(url), '_blank', 'noopener,noreferrer');
+};
+
 function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, className = '' }) {
   const titleSizeClass = project.title.length > 20
     ? 'text-[1rem]'
@@ -37,13 +49,14 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
 
       {project.live && (
         <a 
-          href={project.live}
+          href={getBufferedLiveUrl(project.live)}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(event) => openBufferedLive(event, project.live)}
           className="absolute inset-0 z-0 pointer-events-auto overflow-hidden block cursor-pointer"
         >
           <iframe
-            src={project.live}
+            src={`${project.live}?embed=portfolio-preview`}
             className="border-0 animate-fade-in"
             title={project.title}
             style={{
@@ -104,9 +117,10 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                   )}
                   {project.live && (
                     <a
-                      href={project.live}
+                      href={getBufferedLiveUrl(project.live)}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) => openBufferedLive(event, project.live)}
                       className="text-white/60 hover:text-[var(--project-accent)] transition-colors p-0.5"
                     >
                       <FiArrowUpRight size={11} />
@@ -259,13 +273,14 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
 
       {project.live && (
         <a 
-          href={project.live}
+          href={getBufferedLiveUrl(project.live)}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(event) => openBufferedLive(event, project.live)}
           className="absolute inset-0 z-0 pointer-events-auto overflow-hidden block cursor-pointer"
         >
           <iframe
-            src={project.live}
+            src={`${project.live}?embed=portfolio-preview`}
             className="border-0 animate-fade-in"
             title={project.title}
             style={{
@@ -386,9 +401,10 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                     )}
                     {project.live && (
                       <a
-                        href={project.live}
+                        href={getBufferedLiveUrl(project.live)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(event) => openBufferedLive(event, project.live)}
                         className="hover:text-[var(--project-accent)] transition-colors p-1"
                       >
                         <FiArrowUpRight size={16} />
