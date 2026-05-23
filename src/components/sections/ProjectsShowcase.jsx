@@ -18,50 +18,8 @@ const projects = [
     live: 'https://praneetkamble.github.io',
   },
   {
-    id: 'ai-study-planner',
-    channel: '02',
-    title: 'AI Study Planner',
-    category: 'Productivity app',
-    status: 'Prototype',
-    description:
-      'A study dashboard that turns deadlines, subjects, and weak areas into a focused daily learning plan.',
-    stack: ['Python', 'React', 'FastAPI'],
-    stats: ['Smart schedules', 'Progress view', 'Priority logic'],
-    accent: '#38BDF8',
-    github: 'https://github.com/praneetkamble',
-    live: '',
-  },
-  {
-    id: 'campus-hub',
-    channel: '03',
-    title: 'Campus Event Hub',
-    category: 'Full-stack web app',
-    status: 'In progress',
-    description:
-      'A central place for students to discover events, register quickly, and track club activity without scattered links.',
-    stack: ['Node.js', 'Express', 'MongoDB'],
-    stats: ['Event feeds', 'Club pages', 'Role access'],
-    accent: '#A3E635',
-    github: 'https://github.com/praneetkamble',
-    live: '',
-  },
-  {
-    id: 'inventory-console',
-    channel: '04',
-    title: 'Inventory Command Center',
-    category: 'Operations dashboard',
-    status: 'Case study',
-    description:
-      'A dense management interface for stock levels, alerts, and supplier movement with a clean admin workflow.',
-    stack: ['Java', 'MySQL', 'Charts'],
-    stats: ['Live tables', 'Low-stock alerts', 'Search tools'],
-    accent: '#FACC15',
-    github: 'https://github.com/praneetkamble',
-    live: '',
-  },
-  {
     id: 'redmagic-showcase',
-    channel: '05',
+    channel: '02',
     title: 'REDMAGIC 3D Showcase',
     category: '3D product lab',
     status: 'Live build',
@@ -90,6 +48,25 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:100%_8px]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(90deg,rgba(0,255,102,0.07)_1px,transparent_1px),linear-gradient(rgba(34,211,238,0.07)_1px,transparent_1px)] [background-size:42px_42px]" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-[24%] bg-gradient-to-r from-transparent via-[#03110f]/22 to-[#03110f]/30" />
+
+      {project.live && (
+        <div className="absolute inset-0 z-0 pointer-events-auto overflow-hidden">
+          <iframe
+            src={project.live}
+            className="border-0"
+            title={project.title}
+            style={{
+              width: '300%',
+              height: '300%',
+              transform: 'scale(0.33333)',
+              transformOrigin: 'top left',
+              pointerEvents: 'auto',
+              opacity: 0.85
+            }}
+          />
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        </div>
+      )}
 
       <AnimatePresence>
         {isTuning && (
@@ -201,38 +178,42 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               </div>
             </aside>
 
-            <section className="project-preview-depth min-h-0 border border-[var(--project-accent)]/32 bg-[#03120f]/58 p-1.5 shadow-[0_0_12px_rgba(0,255,102,0.08)]">
-              <div className="mb-1 flex items-center justify-between text-[9px] font-bold uppercase text-white/60">
-                <span className="flex items-center gap-1.5 text-[var(--project-accent)]">
-                  <span className="h-4 w-4 border border-[var(--project-accent)]/70 shadow-[0_0_8px_var(--project-accent)]" />
-                  {project.stats[0]}
-                </span>
-                <span>Live preview</span>
-              </div>
-
-              <div className="grid h-[calc(100%-1.25rem)] grid-cols-[minmax(0,1fr)_90px] gap-1.5">
-                <div className="flex min-h-0 flex-col">
-                  <div className="space-y-1">
-                    <div className="h-1.5 w-[78%] bg-[var(--project-accent)]/80 shadow-[0_0_12px_var(--project-accent)]" />
-                    <div className="h-1.5 w-[58%] bg-white/20" />
-                    <div className="h-1.5 w-[68%] bg-white/12" />
-                  </div>
-
-                  <div className="mt-auto space-y-1">
-                    <div className="h-1 w-[78%] bg-[var(--project-accent)]/80 shadow-[0_0_12px_var(--project-accent)]" />
-                    <div className="h-1 w-[54%] bg-white/12" />
-                  </div>
+            {!project.live ? (
+              <section className="project-preview-depth min-h-0 border border-[var(--project-accent)]/32 bg-[#03120f]/58 p-1.5 shadow-[0_0_12px_rgba(0,255,102,0.08)]">
+                <div className="mb-1 flex items-center justify-between text-[9px] font-bold uppercase text-white/60">
+                  <span className="flex items-center gap-1.5 text-[var(--project-accent)]">
+                    <span className="h-4 w-4 border border-[var(--project-accent)]/70 shadow-[0_0_8px_var(--project-accent)]" />
+                    {project.stats[0]}
+                  </span>
+                  <span>Live preview</span>
                 </div>
 
-                <div className="grid grid-rows-3 gap-1">
-                  {project.stats.map((stat) => (
-                    <div key={stat} className="border border-[var(--project-accent)]/18 bg-black/25 p-0.5 flex items-center justify-center">
-                      <p className="text-[7.5px] font-bold uppercase leading-none text-white/64 text-center truncate">{stat}</p>
+                <div className="grid h-[calc(100%-1.25rem)] grid-cols-[minmax(0,1fr)_90px] gap-1.5">
+                  <div className="flex min-h-0 flex-col">
+                    <div className="space-y-1">
+                      <div className="h-1.5 w-[78%] bg-[var(--project-accent)]/80 shadow-[0_0_12px_var(--project-accent)]" />
+                      <div className="h-1.5 w-[58%] bg-white/20" />
+                      <div className="h-1.5 w-[68%] bg-white/12" />
                     </div>
-                  ))}
+
+                    <div className="mt-auto space-y-1">
+                      <div className="h-1.5 w-[78%] bg-[var(--project-accent)]/80 shadow-[0_0_12px_var(--project-accent)]" />
+                      <div className="h-1.5 w-[54%] bg-white/12" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-rows-3 gap-1">
+                    {project.stats.map((stat) => (
+                      <div key={stat} className="border border-[var(--project-accent)]/18 bg-black/25 p-0.5 flex items-center justify-center">
+                        <p className="text-[7.5px] font-bold uppercase leading-none text-white/64 text-center truncate">{stat}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            ) : (
+              <div className="min-h-0 pointer-events-none" />
+            )}
 
             <footer className="project-footer-depth col-span-2 grid min-h-0 grid-cols-[minmax(0,1fr)_110px] items-end gap-1.5">
               <div className="grid max-w-[210px] grid-cols-3 gap-1">
@@ -283,6 +264,25 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_16%,rgba(0,255,102,0.2),transparent_30%),linear-gradient(135deg,rgba(0,255,102,0.1),transparent_46%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.2] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:100%_5px]" />
+
+      {project.live && (
+        <div className="absolute inset-0 z-0 pointer-events-auto overflow-hidden">
+          <iframe
+            src={project.live}
+            className="border-0"
+            title={project.title}
+            style={{
+              width: '200%',
+              height: '200%',
+              transform: 'scale(0.5)',
+              transformOrigin: 'top left',
+              pointerEvents: 'auto',
+              opacity: 0.7
+            }}
+          />
+          <div className="absolute inset-0 bg-black/65 pointer-events-none" />
+        </div>
+      )}
 
       <AnimatePresence>
         {isTuning && (
@@ -344,19 +344,22 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
               ))}
             </div>
 
-            <div className="mt-auto pt-3">
-              <div className="grid grid-cols-3 gap-1.5">
-                {project.stats.map((stat) => (
-                  <div key={stat} className="min-h-10 border border-white/10 bg-white/[0.035] p-1.5 sm:p-2">
-                    <FiZap className="mb-1 text-[var(--project-accent)]" />
-                    <p className="text-[8px] font-semibold uppercase leading-snug text-white/70 sm:text-[10px]">
-                      {stat}
-                    </p>
-                  </div>
-                ))}
+            {!project.live && (
+              <div className="mt-auto pt-3">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {project.stats.map((stat) => (
+                    <div key={stat} className="min-h-10 border border-white/10 bg-white/[0.035] p-1.5 sm:p-2">
+                      <FiZap className="mb-1 text-[var(--project-accent)]" />
+                      <p className="text-[8px] font-semibold uppercase leading-snug text-white/70 sm:text-[10px]">
+                        {stat}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
 
-              <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-1.5" aria-label="Project channels">
                   {projects.map((item, index) => (
                     <button
@@ -396,7 +399,6 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                   )}
                 </div>
               </div>
-            </div>
         </motion.article>
       </div>
     </div>
