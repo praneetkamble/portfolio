@@ -17,6 +17,32 @@ const projects = [
     github: 'https://github.com/praneetkamble/Redmagic_clone',
     live: 'https://praneetkamble.github.io/Redmagic_clone/',
   },
+  {
+    id: 'resume-analyser',
+    channel: '02',
+    title: 'Resume Analyser',
+    category: 'AI Application',
+    status: 'Codebase',
+    description:
+      'An intelligent tool that analyzes resumes against job descriptions, providing keyword matching, formatting feedback, and optimization suggestions.',
+    stack: ['Python', 'NLP', 'React'],
+    stats: ['Keyword Matching', 'Score Generation', 'Instant Feedback'],
+    accent: '#22D3EE',
+    github: 'https://github.com/praneetkamble/resume_analyser',
+  },
+  {
+    id: 'percentile-predictor',
+    channel: '03',
+    title: 'Percentile Predictor',
+    category: 'Data Analysis Tool',
+    status: 'Codebase',
+    description:
+      'An application designed to analyze user scores and predict percentiles based on historical trends and performance metrics.',
+    stack: ['Python', 'Data Science', 'Streamlit'],
+    stats: ['Predictive Modeling', 'Real-time Calculation', 'Data Insights'],
+    accent: '#00FF66',
+    github: 'https://github.com/praneetkamble/percentile-predictor',
+  },
 ];
 
 const getBufferedLiveUrl = (url) => {
@@ -71,29 +97,6 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         </a>
       )}
 
-      {project.live && (
-        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-end justify-between gap-3 border border-[var(--project-accent)]/40 bg-black/72 px-3 py-2 shadow-[0_0_22px_rgba(255,0,60,0.18),inset_0_0_18px_rgba(255,0,60,0.08)] backdrop-blur-md">
-          <div className="min-w-0">
-            <p className="font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-[var(--project-accent)]">
-              Redirect link
-            </p>
-            <p className="mt-0.5 truncate font-mono text-[8px] text-white/62">
-              {project.live}?buffer=portfolio
-            </p>
-          </div>
-          <a
-            href={getBufferedLiveUrl(project.live)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(event) => openBufferedLive(event, project.live)}
-            className="pointer-events-auto inline-flex shrink-0 items-center gap-1.5 border border-[var(--project-accent)]/55 bg-[var(--project-accent)]/12 px-2.5 py-1.5 font-mono text-[8.5px] font-black uppercase tracking-[0.16em] text-white transition-colors hover:bg-[var(--project-accent)]/24"
-          >
-            Launch
-            <FiArrowUpRight size={11} />
-          </a>
-        </div>
-      )}
-
       <AnimatePresence>
         {isTuning && (
           <motion.div
@@ -116,7 +119,10 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
           initial={false}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px) brightness(1)' }}
           transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-          className="project-depth-article relative z-10 h-full pl-3 pr-3 pb-3 pt-3"
+          className="project-depth-article relative z-10 h-full pl-3 pr-3 pb-3 pt-3 cursor-pointer"
+          onClick={() => {
+            if (project.github) window.open(project.github, '_blank', 'noopener,noreferrer');
+          }}
         >
           <div className="grid h-full grid-cols-[minmax(0,1fr)_116px] grid-rows-[auto_minmax(0,1fr)_34px] gap-1.5">
             <header className="project-card-depth max-w-[220px] space-y-0.5">
@@ -134,6 +140,7 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-white/60 hover:text-[var(--project-accent)] transition-colors p-0.5"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <FiGithub size={10} />
                     </a>
@@ -266,7 +273,7 @@ function DesktopProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => onJump(index)}
+                      onClick={(e) => { e.stopPropagation(); onJump(index); }}
                       className={`h-1 transition-all ${
                         index === activeIndex
                           ? 'w-5 bg-[var(--project-accent)] shadow-[0_0_6px_var(--project-accent)]'
@@ -318,30 +325,6 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
         </a>
       )}
 
-      {project.live && (
-        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 border border-[var(--project-accent)]/42 bg-black/78 p-3 shadow-[0_0_24px_rgba(255,0,60,0.2),inset_0_0_20px_rgba(255,0,60,0.08)] backdrop-blur-md">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--project-accent)]">
-              Redirect link
-            </span>
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--project-accent)] shadow-[0_0_10px_var(--project-accent)]" />
-          </div>
-          <p className="mb-2 truncate font-mono text-[9px] text-white/62">
-            {project.live}?buffer=portfolio
-          </p>
-          <a
-            href={getBufferedLiveUrl(project.live)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(event) => openBufferedLive(event, project.live)}
-            className="pointer-events-auto flex items-center justify-center gap-2 border border-[var(--project-accent)]/60 bg-[var(--project-accent)]/14 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-[var(--project-accent)]/25"
-          >
-            Launch Redmagic
-            <FiArrowUpRight size={13} />
-          </a>
-        </div>
-      )}
-
       <AnimatePresence>
         {isTuning && (
           <motion.div
@@ -358,7 +341,12 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
       </AnimatePresence>
 
       {!project.live && (
-        <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5">
+        <div 
+          className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5 cursor-pointer"
+          onClick={() => {
+            if (project.github) window.open(project.github, '_blank', 'noopener,noreferrer');
+          }}
+        >
           <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase text-[#9BFFBD] sm:text-xs">
             <span className="flex items-center gap-2">
               <FiRadio className="text-[var(--project-accent)]" />
@@ -424,7 +412,7 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => onJump(index)}
+                        onClick={(e) => { e.stopPropagation(); onJump(index); }}
                         className={`h-2.5 rounded-full transition-all ${
                           index === activeIndex
                             ? 'w-8 bg-[var(--project-accent)] shadow-[0_0_14px_var(--project-accent)]'
@@ -442,6 +430,7 @@ function CompactProjectScreen({ project, activeIndex, isTuning, onJump, classNam
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-[var(--project-accent)] transition-colors p-1"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <FiGithub size={14} />
                       </a>
