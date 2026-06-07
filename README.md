@@ -183,35 +183,6 @@ npm run build
 
 ---
 
-# 📸 Screenshots
-
-## Hero Section
-
-Add your screenshot here:
-
-```md
-![Hero](./screenshots/hero.png)
-```
-
-## About Section
-
-```md
-![About](./screenshots/about.png)
-```
-
-## Projects Section
-
-```md
-![Projects](./screenshots/projects.png)
-```
-
-## Contact Section
-
-```md
-![Contact](./screenshots/contact.png)
-```
-
----
 
 # 🎯 Objectives
 
